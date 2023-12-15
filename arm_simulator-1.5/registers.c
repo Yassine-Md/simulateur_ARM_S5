@@ -149,7 +149,7 @@ void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
             case ABT:
             case UND:
             case IRQ:
-                if (reg < 13 && reg >= 0) {
+                if (reg < 16 && reg >= 0) {
                     r->general_registers[reg] = value;
                 }
                 break;
