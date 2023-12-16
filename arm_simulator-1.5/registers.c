@@ -65,7 +65,7 @@ uint8_t registers_get_mode(registers r) {
 }
 
 
-//verifier si un mode specifique a un registre SPSR
+//verifier si un mode specifique a un registre SPSR 
 static int registers_mode_has_spsr(registers r, uint8_t mode) {
     switch (mode) {
         case SVC:
@@ -113,7 +113,7 @@ uint32_t registers_read_cpsr(registers r) {
 }
 
 uint32_t registers_read_spsr(registers r, uint8_t mode) {
-    if (r != NULL){
+    if (r != NULL){ 
         if (mode == USR || mode == SYS){
             return UINT32_MAX;
         }else {
@@ -129,7 +129,7 @@ uint32_t registers_read_spsr(registers r, uint8_t mode) {
                 case IRQ:
                     return r->spsr[1];
             }
-        }
+       }
     }
     return UINT32_MAX ;
 }
@@ -156,10 +156,10 @@ void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
 
             case FIQ:
                 if (reg < 8 && reg >= 0) {
-                    r->general_registers[reg] = value;
-                }
-                break;
-        }
+                        r->general_registers[reg] = value;
+                    }
+                break;     
+        }  
     }
 }
 

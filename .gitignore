@@ -2,4 +2,12 @@
 # Fichiers ZIP
 .zip
 
+# Fichiers objets
+*.o
+
+# Fichiers executables 
+*.out
+
+# Fichier brouillon 
+brouillon.c
 
