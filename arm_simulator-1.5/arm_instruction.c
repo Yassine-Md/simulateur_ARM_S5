@@ -1,24 +1,24 @@
 /*
-Armator - simulateur de jeu d'instruction ARMv5T à but pédagogique
+Armator - simulateur de jeu d'instruction ARMv5T ï¿½ but pï¿½dagogique
 Copyright (C) 2011 Guillaume Huard
 Ce programme est libre, vous pouvez le redistribuer et/ou le modifier selon les
-termes de la Licence Publique Générale GNU publiée par la Free Software
-Foundation (version 2 ou bien toute autre version ultérieure choisie par vous).
+termes de la Licence Publique Gï¿½nï¿½rale GNU publiï¿½e par la Free Software
+Foundation (version 2 ou bien toute autre version ultï¿½rieure choisie par vous).
 
-Ce programme est distribué car potentiellement utile, mais SANS AUCUNE
+Ce programme est distribuï¿½ car potentiellement utile, mais SANS AUCUNE
 GARANTIE, ni explicite ni implicite, y compris les garanties de
-commercialisation ou d'adaptation dans un but spécifique. Reportez-vous à la
-Licence Publique Générale GNU pour plus de détails.
+commercialisation ou d'adaptation dans un but spï¿½cifique. Reportez-vous ï¿½ la
+Licence Publique Gï¿½nï¿½rale GNU pour plus de dï¿½tails.
 
-Vous devez avoir reçu une copie de la Licence Publique Générale GNU en même
-temps que ce programme ; si ce n'est pas le cas, écrivez à la Free Software
+Vous devez avoir reï¿½u une copie de la Licence Publique Gï¿½nï¿½rale GNU en mï¿½me
+temps que ce programme ; si ce n'est pas le cas, ï¿½crivez ï¿½ la Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307,
-États-Unis.
+ï¿½tats-Unis.
 
 Contact: Guillaume.Huard@imag.fr
-	 Bâtiment IMAG
+	 Bï¿½timent IMAG
 	 700 avenue centrale, domaine universitaire
-	 38401 Saint Martin d'Hères
+	 38401 Saint Martin d'Hï¿½res
 */
 #include "arm_instruction.h"
 #include "arm_exception.h"
@@ -29,7 +29,70 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 
 static int arm_execute_instruction(arm_core p) {
-    return 0;
+    uint32_t value ; 
+    int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
+    if (res == 0 ){
+        uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
+        uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
+        uint8_t bit_4 = get_bit(value, 4);
+        uint8_t bit_20 = get_bit(value , 20);
+        //reccuperer les bits de 25 a 27 de value pour avoir la categorie de l'instruction
+        uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
+        switch(cat_inst){
+            case 0:     
+                if(bit_24_23 == 2 && bit_20 == 0){
+                    // Miscellaneous instructions:
+                    arm_miscellaneous(p, value);
+                }else{
+                    if(bit_4 == 1){
+                    arm_data_processing_immediate_msr(p , value);
+                    }else{
+                    arm_data_processing_shift(p,value);
+                    }
+                }
+                // extra load/store 
+                // a voir 
+                
+            case 1:
+                if ((bit_24_23 == 2)&& (bit_21_20 == 2)){
+                    // Undifined instruction
+                    arm_coprocessor_others_swi(p , value);
+                }else{
+                    //move immediate to status register  (mettre Ã  jour le registre d'Ã©tat avec une valeur immÃ©diate)
+                    //data prcessing immediate (effectuer des opÃ©rations arithmÃ©tiques ou logiques sur des donnÃ©es immÃ©diates)
+                    arm_data_processing_immediate_msr(p ,value );
+                }
+            case 2: // Load/store immediate offset
+                arm_load_store(p, value);
+
+            case 3: // Load/store register offset
+                if(bit_4 == 1 ){
+                    // media instruction 
+                    // architecturally undefined
+                    arm_coprocessor_others_swi(p , value);
+                }
+                arm_load_store(p, value);
+
+            case 4: // load store multiple
+                arm_load_store_multiple(p, value );
+
+            case 5: // branche with link 
+                arm_branch(p, value );
+
+            case 6: // Coprocessor load/store and double register transfers
+                arm_coprocessor_load_store(p, value);
+            
+            case 7: 
+                //coprocessor data processing
+                //coprocessor register transfers
+                // software interrupt
+                arm_coprocessor_others_swi(p, value);
+        }
+        // arm_constants.h pour les exceptions
+    }
+    //appel a la fonction arm_exception 
+    return PREFETCH_ABORT ;
+    
 }
 
 int arm_step(arm_core p) {
