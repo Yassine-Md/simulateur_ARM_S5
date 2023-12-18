@@ -24,47 +24,109 @@ Contact: Guillaume.Huard@imag.fr
 #include "memory.h"
 #include "util.h"
 
-struct memory_data {
-    //size
-    //value
-    //adresse
-    //mode lecture ou ecriture 
-    
 
-};
 
 memory memory_create(size_t size) {
-    memory mem = NULL;
+    memory mem = (memory)malloc(sizeof(struct memory_data));
+    if (mem != NULL) {
+        mem->capacity = size;
+        mem->data = (uint8_t *)malloc(size);
+        if (mem->data == NULL) {
+            free(mem);
+            return NULL;
+        }
+    }
     return mem;
 }
 
 size_t memory_get_size(memory mem) {
-    return 0;
+    if (mem != NULL){
+        return mem->capacity;
+    }
+    return  0;
 }
 
 void memory_destroy(memory mem) {
+    if (mem != NULL) {
+        free(mem->data);
+        free(mem);
+    }
 }
 
 int memory_read_byte(memory mem, uint32_t address, uint8_t *value) {
-    return -1;
+    if (mem == NULL || address >= mem->capacity )
+        return -1;
+
+    *value = mem->data[address];
+    return 0;
 }
 
 int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) {
-    return -1;
+    if (mem == NULL || address >= mem->capacity - 1)
+        return -1;
+
+    if (!be) {
+        *value = mem->data[address] | (mem->data[address + 1] << 8);
+    } else {
+        *value = mem->data[address + 1] | (mem->data[address] << 8) ;
+    }
+
+    return 0;
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) {
-    return -1;
+    if (mem == NULL || address  >= mem->capacity-3)
+        return -1;
+
+    if (!be) {
+        *value = mem->data[address] | (mem->data[address + 1] << 8) |
+                 (mem->data[address + 2] << 16) | (mem->data[address + 3] << 24);
+    } else {
+        *value = (mem->data[address]<<24) | (mem->data[address + 1] << 16) |
+                 (mem->data[address + 2] << 8) | mem->data[address + 3] ;
+    }
+
+    return 0;
 }
 
 int memory_write_byte(memory mem, uint32_t address, uint8_t value) {
-    return -1;
+    if (mem == NULL || address >= mem->capacity)
+        return -1;
+
+    mem->data[address] = value;
+    return 0;
 }
 
 int memory_write_half(memory mem, uint32_t address, uint16_t value, uint8_t be) {
-    return -1;
+    if (mem == NULL || address + 1 >= mem->capacity)
+        return -1;
+
+    if (!be) {
+        mem->data[address] = value & 0xFF;
+        mem->data[address + 1] = (value >> 8) & 0xFF;
+    } else {
+        mem->data[address] = (value >> 8) & 0xFF;
+        mem->data[address + 1] = value & 0xFF;
+    }
+
+    return 0;
 }
 
 int memory_write_word(memory mem, uint32_t address, uint32_t value, uint8_t be) {
-    return -1;
+    if (mem == NULL || address >= mem->capacity-3)
+        return -1;
+
+    if (!be) {
+        mem->data[address] = value & 0xFF;
+        mem->data[address + 1] = (value >> 8) & 0xFF;
+        mem->data[address + 2] = (value >> 16) & 0xFF;
+        mem->data[address + 3] = (value >> 24) & 0xFF;
+    } else {
+        mem->data[address] = (value >> 24) & 0xFF;
+        mem->data[address + 1] = (value >> 16) & 0xFF;
+        mem->data[address + 2] = (value >> 8) & 0xFF;
+        mem->data[address + 3] = value & 0xFF;
+    }
+
+    return 0;
 }
