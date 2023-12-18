@@ -38,9 +38,7 @@ void print_test(int result) {
 int main() {
     registers r;
     uint32_t word_value[15], word_read;
-    int i;
-
-    r = registers_create();
+    int i;r = registers_create();
     if (r == NULL) {
         fprintf(stderr, "Error when creating simulated registers\n");
         exit(1);
