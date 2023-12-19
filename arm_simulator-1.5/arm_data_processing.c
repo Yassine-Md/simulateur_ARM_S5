@@ -121,9 +121,39 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                     p->reg->cpsr = clr_bit(p->reg->cpsr,28);
                 }
         }
+		else if (op_code==0){
+			uint32_t shift_op = get_bits(ins, 11, 0);
+			val_rd= val_rn & (uint32_t) shift_op; //AND
+			if((set_cond == 1) && (val_rd == p->reg->general_registers[15])){
+				 if (registers_current_mode_has_spsr(p->reg)){ //-----------------a demander au prof
+                    			p->reg->cpsr = arm_read_spsr(p);
+                		} 
+				 else return UNDEFINED_INSTRUCTION;
+			} else if (set_cond == 1) {
+				byte Neg=get_bit(val_rd,31);//recuperer N
+				if(N){
+                  			p->reg->cpsr = set_bit(p->reg->cpsr, 31);
+               			 }else{
+                  			  p->reg->cpsr = clr_bit(p->reg->cpsr,31);
+             			 }
+
+				byte Zero= val_rd == 0;
+			if(Zero){ //recuperer Z                            a demander au prof
+                    		p->reg->cpsr = set_bit(p->reg->cpsr,30);
+               		 }else   
+               		 { p->reg->cpsr = clr_bit(p->reg->cpsr,30);}
+				byte C=//a voir demain;
+				byte V =;
+				
+				
+				
+			}
+		}
+			
 
 
         }
+	
     }
     return UNDEFINED_INSTRUCTION;
 }
