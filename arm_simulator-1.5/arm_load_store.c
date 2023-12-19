@@ -26,6 +26,16 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 
+
+uint32_t logical_shift_right(uint32_t value, uint8_t shift) {
+    return value >> shift;
+}
+
+uint32_t logical_shift_left(uint32_t value, uint8_t shift) {
+    return value << shift;
+}
+
+
 /*
 P=1 et W=0 cela signifie que le registre de base reste inchangé après l'accès à la mémoire.
 P=1 et W=1 cela signifie que le registre de base est mis à jour avec le résultat après l'accès à la mémoire
@@ -33,19 +43,11 @@ P=1 et W=1 cela signifie que le registre de base est mis à jour avec le résult
 
 
 
-
-
-
-
-// LDM : load multiple 
-
-
-
-
+// elle renvoie quoi cette fonction
 int arm_load_store(arm_core p, uint32_t ins) {
     // reccuperer COND 
     uint8_t cond = get_bits (ins , 31 , 28);
-    uint8_t L_S = get_bit(ins , 20); // 1 Load   0 Store
+    uint8_t load_store = get_bit(ins , 20); // 1 Load   0 Store
     uint8_t B = get_bit(ins , 22); // Distinguishes between an unsigned byte (B==1) and a word (B==0) access.
     uint8_t Rn = get_bits(ins , 19 , 16); // Specifies the base register used by <addressing_mode>.
     uint8_t Rd = get_bits(ins , 15 , 12); // Specifies the register whose contents are to be loaded or stored.
@@ -60,96 +62,272 @@ int arm_load_store(arm_core p, uint32_t ins) {
     uint16_t shift_imm = get_bits(ins , 11 , 7);
     uint16_t shift = get_bits(ins,6,5);
     uint8_t bit_4 = get_bit(ins,4);
+    uint16_t flags = get_bits(p->cpsr , 31 , 28);
+    uint8_t C_flag = get_bit (p->cpsr , 29);
+    uint8_t bit_27_26 = get_bits (ins , 27 , 26);  // pour determiner si c'est un LDR/B STR/B | LDRH STRH
+    uint8_t always = 15;
 
 
-    w = 21 
-    u = 23 
-    p = 24 
-    i = 25
+/*  utiliser ces fonction pour profiter des traces 
+int arm_read_word(arm_core p, uint32_t address, uint32_t *value) // return boolean
+int arm_read_byte(arm_core p, uint32_t address, uint8_t *value)  // return boolean
+int arm_write_byte(arm_core p, uint32_t address, uint8_t value)  // return boolean 
+int arm_write_word(arm_core p, uint32_t address, uint32_t value) // return boolean 
 
-    LDRH 27 26 25 = 000 b= 1
+void arm_write_register(arm_core p, uint8_t reg, uint32_t value) //return void modifie la valeur du registre Rreg = value
+uint32_t arm_read_register(arm_core p, uint8_t reg) // return Rreg value 
+*/
 
-    if (L_S){
-        // LOAD
-
-        if (B) {
-            //LDRB
-            // scaled register offset 
-            if((I == 1) && (P == 1) && (W == 0) && (bit_4 == 0)){
-                switch (shift){
-                    case 0:
-                        // index = Rm Logical_Shift_Left shift_imm
-                    case 1:
-                        /*
-                        if shift_imm == 0 then /* LSR #32 /
-                            index = 0
-                        else
-                            index = Rm Logical_Shift_Right shift_imm
-                        */
-                    case 2:
-                        /*
-                        if shift_imm == 0 then /* ASR #32/
-                        if Rm[31] == 1 then
-                        index = 0xFFFFFFFF
-                        else
-                        index = 0
-                        else
-                        index = Rm Arithmetic_Shift_Right shift_imm
-                        */
-                    case 3:
-                }
-            }
-
-            //register offset 
-            if((I == 1) && (P == 1) && (W == 0) && (bit_11_4 == 0) ){
-                if (U == 1){
-                    p->memory = p->reg[Rn] + p->reg[Rm] ;
-                }else{
-                    p->memory = p->reg[Rn] - p->reg[Rm] ;
-                }
-            }
-            // immediate offset
-            if((I == 0) && (P == 1) && (W == 0) ) {
-                if (U == 1){
-                    p->memory = p->reg[Rn] + offset_12 ;
-                }else{
-                    p->memory = p->reg[Rn] - offset_12 ;
-                }
-            }
-
-
-
-            //LDRH
-
-        }else{
-            // LDR
-            // immediate offset
-            if((I == 0) && (P == 1) && (W == 0) ) {
-                if (U == 1){
-                    p->memory = p->reg[Rn] + offset_12 ;
-                }else{
-                    p->memory = p->reg[Rn] - offset_12 ;
-                }
-            }
-
+/*
+if (load_store == 0){ // Store
+    if(B == 0){ // Word
+                                    
+    }else{ //Byte
             
+    }
+    
+}else{ // Load
+    if(B == 0){ // Word
+
+    }else{ //Byte
+
+    }
+
+}
+
+
+*/
+
+    uint32_t memory ;
+    uint32_t address ;
+    uint32_t value ;
+    uint32_t index ;
+
+    if (bit_27_26 == 1){ //  LDR/B STR/B 
+        if (P == 0){
+            if(W == 0){
+                if(I == 0){
+                    // immediate post-indexed
+                    address = arm_read_register(p, Rn);
+                    if(cond == flags){
+                        if(U == 1){
+                            value = arm_read_register(p, Rn) + offset_12 ;
+                            arm_write_register(p, Rn, value);
+                        }else{
+                            value = arm_read_register(p, Rn) - offset_12 ;
+                            arm_write_register(p, Rn, value);
+                        }
+                    }else{ // si l'instruction ne verifie pas les condtion 
+                        //Exception
+                    }
+                }else{  // I == 1
+                    if(bit_11_4 == 0){
+                        //register post indexed
+                        address = arm_read_register(p, Rn);
+                        if(cond == flags){
+                            if(U == 1){
+                                value = arm_read_register(p, Rn) + arm_read_register(p, Rm) ;
+                                arm_write_register(p, Rn, value);
+                            }else{
+                                value = arm_read_register(p, Rn) - arm_read_register(p, Rm);
+                                arm_write_register(p, Rn, value);
+                            }
+                        }
+                    }
+                    else if(bit_4 == 0){
+                        // scaled register post-indexed
+                        address = arm_read_register(p , Rn);
+                        switch (shift){
+                            case 0:
+                                index = logical_shift_left (arm_read_register(p , Rm) , shift_imm);
+                                break;
+                            case 1:
+                                if(shift_imm == 0){
+                                    index = 0;
+                                }else{
+                                    index = logical_shift_right(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break;
+                            case 2:
+                                if(shift_imm == 0){
+                                    if(get_bit(arm_read_register(p , Rm) , 31) == 1){
+                                        index = 0xFFFFFFFF ;
+                                    }else{
+                                        index = 0 ;
+                                    }
+                                }else{
+                                    index = asr(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break ;
+                            case 3:
+                                if(shift_imm == 0){
+                                    index = logical_shift_left(C_flag , 31) | logical_shift_right(arm_read_register(p , Rm) , 1);
+                                }else{
+                                    index = ror(arm_read_register(p , Rm) , shift_imm);
+                                }
+                        }
+                        if(cond == flags){
+                            if(U == 1){
+                                value = arm_read_register(p, Rn) + index;
+                                arm_write_register(p, Rn, value);
+                            }else{
+                                value = arm_read_register(p, Rn) - index;
+                                arm_write_register(p, Rn, value);
+                            }
+                        }
+                        
+                    }else{
+                        // undefined instruction 
+                    }
+                }
+            }else{ // W == 1
+                // undefined instruction  p459 privilege mode strt ldrt ...
+            }
+
+        }else{ // P == 1
+            if (W == 0){
+                if(I == 0){
+                    // immediate offset
+                    if (U == 1){
+                        address = arm_read_register(p , Rn) + offset_12 ;
+                    }else{
+                        address= arm_read_register(p , Rn) - offset_12 ;
+                    }
+                // load ou store (byte or word) manipulation 
+
+                }else{ // I == 1
+                    if(bit_11_4 == 0){
+                            
+                        //register offset 
+                        if (U == 1){
+                            address  = arm_read_register(p , Rn) + arm_read_register(p , Rm) ;
+                        }else{
+                            address  = arm_read_register(p , Rn) - arm_read_register(p , Rm) ;
+                        }
+                    }
+                    else if(bit_4 == 0){
+                        // scaled register offset 
+                        switch (shift){
+                            case 0:
+                                index = logical_shift_left(arm_read_register(p , Rm) , shift_imm) ; 
+                            case 1:
+                                if (shift_imm == 0){
+                                    index = 0 ;
+                                }else{
+                                    logical_shift_right(arm_read_register(p , Rm) , shift_imm) ;
+                                }
+                                break ;
+                            case 2:
+                                if(shift_imm == 0){
+                                    if(getbit(arm_read_register(p , Rm) , 31) == 1){
+                                        index = 0xFFFFFFFF ;
+                                    }else{
+                                        index = 0 ;
+                                    }
+                                }else {
+                                    index = asr(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break ;
+                            case 3: 
+                                if(shift_imm == 0){
+                                    index  = logical_shift_left(C_flag, 31) | logical_shift_right(arm_read_register(p , Rm) ,1);
+                                }else{
+                                    index = ror(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break;
+                            case default :
+                                break; // return undefined 
+                        }
+                        if(U == 1){
+                            address = arm_read_register(p , Rn) + index ;
+                        }else{
+                            address = arm_read_register(p , Rn) - index ;
+                        }
+                    }else{
+                        // undefined instruction 
+                    }
+
+                }
+            }else{ // W == 1
+                if(I == 0){
+                //immediate pre-indexed
+                    if(U == 1){
+                        address = arm_read_register(p , Rn) + offset_12 ;
+                    }else{
+                        address = arm_read_register(p , Rn) - offset_12 ;
+                    }
+                    // si cond == au flags ZNCV de CPSR
+                    if (cond == flags){
+                        arm_write_register(p , Rn , address);
+                    }
+
+                }else{ // I == 1
+                    if(bit_11_4 == 0){
+                        //register pre-indexed
+                        if(U == 1){
+                            address = arm_read_register(p , Rn) + arm_read_register(p , Rm) ;
+                        }else{
+                            address = arm_read_register(p , Rn) - arm_read_register(p , Rm) ;
+                        }
+                        if (cond == flags){
+                            arm_write_register(p , Rn , address);
+                        }
+                    }
+                    else if(bit_4 == 0){
+                        //scaled register pre-indexed
+                        switch (shift){
+                            case 0:
+                                index = logical_shift_left(arm_read_register(p , Rm) , shift_imm) ; 
+                            case 1:
+                                if (shift_imm == 0){
+                                    index = 0 ;
+                                }else{
+                                    logical_shift_right(arm_read_register(p , Rm) , shift_imm) ;
+                                }
+                                break ;
+                            case 2:
+                                if(shift_imm == 0){
+                                    if(getbit(arm_read_register(p , Rm) , 31) == 1){
+                                        index = 0xFFFFFFFF ;
+                                    }else{
+                                        index = 0 ;
+                                    }
+                                }else {
+                                    index = asr(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break ;
+                            case 3: 
+                                if(shift_imm == 0){
+                                    index  = logical_shift_left(C_flag, 31) | logical_shift_right(arm_read_register(p , Rm) ,1);
+                                }else{
+                                    index = ror(arm_read_register(p , Rm) , shift_imm);
+                                }
+                                break;
+                            case default :
+                                break; // return undefined 
+                        }
+                        if(U == 1){
+                            address = arm_read_register(p , Rn) + index ;
+                        }else{
+                            address = arm_read_register(p , Rn) - index ;
+                        }
+                        if(cond == flags){
+                            arm_write_register(p , Rn , address);
+                        }
+                        
+                    }
+                    else{
+                        //undefined 
+                    }  
+                }
+            }
 
         }
 
-        //immediate offset 
+    }else{ //LDRH STRH
 
-        //register offset 
-
-        // scaled register offset 
-
-        //immediate offset 
-
-
-
-
-    }else{
-        // store 
     }
+
     return UNDEFINED_INSTRUCTION;
 }
 

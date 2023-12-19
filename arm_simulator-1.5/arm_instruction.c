@@ -31,11 +31,12 @@ Contact: Guillaume.Huard@imag.fr
 static int arm_execute_instruction(arm_core p) {
     uint32_t value ; 
     int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
-    if (res == 0 ){
+    if (res == 0 ){ // fetch bien passer
         uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
         uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
         uint8_t bit_4 = get_bit(value, 4);
         uint8_t bit_20 = get_bit(value , 20);
+        uint8_t bit_è = get_bit(value , 7);
         //reccuperer les bits de 25 a 27 de value pour avoir la categorie de l'instruction
         uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
         switch(cat_inst){
@@ -43,20 +44,20 @@ static int arm_execute_instruction(arm_core p) {
                 if(bit_24_23 == 2 && bit_20 == 0){
                     // Miscellaneous instructions:
                     arm_miscellaneous(p, value);
-                }else{
-                    if(bit_4 == 1){
-                    arm_data_processing_immediate_msr(p , value);
-                    }else{
-                    arm_data_processing_shift(p,value);
-                    }
                 }
-                // extra load/store 
-                // a voir 
+                if(bit_4 == 1 && bit_7 == 1){
+                    // undefine on va pas traiter les extra load store et les multiplies
+                }
+                if(bit_4 == 0){
+                    arm_data_processing_immediate_msr(p , value);
+                }else{
+                    arm_data_processing_shift(p,value);
+                }
                 
             case 1:
-                if ((bit_24_23 == 2)&& (bit_21_20 == 2)){
+                if ((bit_24_23 == 2)&& (bit_21_20 == 0)){
                     // Undifined instruction
-                    arm_coprocessor_others_swi(p , value);
+                    return UNDEFINED_INSTRUCTION ;
                 }else{
                     //move immediate to status register  (mettre à jour le registre d'état avec une valeur immédiate)
                     //data prcessing immediate (effectuer des opérations arithmétiques ou logiques sur des données immédiates)
@@ -66,12 +67,18 @@ static int arm_execute_instruction(arm_core p) {
                 arm_load_store(p, value);
 
             case 3: // Load/store register offset
-                if(bit_4 == 1 ){
-                    // media instruction 
+            if(bit_4 == 0){
+                arm_load_store(p , value);
+            }else{
+                if(get_bits(value,24,20) == Ob11111){
                     // architecturally undefined
-                    arm_coprocessor_others_swi(p , value);
+                    return UNDEFINED_INSTRUCTION;
                 }
-                arm_load_store(p, value);
+                else{
+                    // media instruction 
+                    arm_coprocessor_others_swi(p , value);
+                }   
+            }
 
             case 4: // load store multiple
                 arm_load_store_multiple(p, value );
@@ -83,16 +90,19 @@ static int arm_execute_instruction(arm_core p) {
                 arm_coprocessor_load_store(p, value);
             
             case 7: 
-                //coprocessor data processing
-                //coprocessor register transfers
-                // software interrupt
-                arm_coprocessor_others_swi(p, value);
+                if(get_bit(value , 24) == 0){
+                    //coprocessor data processing
+                    //coprocessor register transfers
+                }else{
+                    // software interrupt
+                    return INTERRUPT ;
+                }
         }
         // arm_constants.h pour les exceptions
     }
+    //fetch mal passer 
     //appel a la fonction arm_exception 
     return PREFETCH_ABORT ;
-    
 }
 
 int arm_step(arm_core p) {

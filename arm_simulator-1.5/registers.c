@@ -59,13 +59,11 @@ void registers_destroy(registers r) {
     }
 }
 
-
 uint8_t registers_get_mode(registers r) {
     return r->current_mode ;
 }
 
 
-//verifier si un mode specifique a un registre SPSR 
 static int registers_mode_has_spsr(registers r, uint8_t mode) {
     switch (mode) {
         case SVC:
@@ -83,8 +81,7 @@ int registers_current_mode_has_spsr(registers r) {
     return registers_mode_has_spsr(r, registers_get_mode(r));
 }
 
-// verifier si la structure des registres est actuellement dans un mode privilegie
-// mode hors USR & SYS
+
 int registers_in_a_privileged_mode(registers r) {
     if (r != NULL){
         if (r->current_mode == USR || r->current_mode == SYS){
@@ -102,7 +99,6 @@ uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
         }
     }
     return UINT32_MAX;  // Valeur speciale indiquant une erreur (definie dans la bib stdint)
-
 }
 
 uint32_t registers_read_cpsr(registers r) {
@@ -169,6 +165,7 @@ void registers_write_cpsr(registers r, uint32_t value) {
         //mettre a jour current_mode ! masquage ...
     }
 }
+
 
 void registers_write_spsr(registers r, uint8_t mode, uint32_t value) {
     if (r != NULL && registers_mode_has_spsr(r, mode)) {
