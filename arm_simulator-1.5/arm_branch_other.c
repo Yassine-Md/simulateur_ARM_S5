@@ -33,25 +33,29 @@ int arm_branch(arm_core p, uint32_t ins) {
         //il s'agit d'une B ou BL
         if(get_bit(ins,24)==1){
             //il s'agit d'un BL
-            p->register[14]=p->register[14];
-            p->register[15]=p->register[15]+((instruction & masqueDecalage) >> 2);
-        }else{
-            //B
-            p->register[15]=p->register[15]+get_bits(ins,25,2);
+            p->register[14]=p->register[15];
+         }
+        uint32_t offset= (uint32_t )get_bits(ins,23,0);
+        if(get_bit(offset,23)==1){
+            offset = set_bits(offset, 31, 24, 0xFF);
+            offset=offset << 2;
         }
+        p->register[15]=p->register[15]+offset;
+
     }
 
-    else if (get_bits(ins,28,20)==18){
+    else if (get_bits(ins,27,20)==18){
         //Il s'agit d'un BX ou BLX
         if(get_bits(ins,7,4)==1){
             //c'est un BX
-            p->register=p->register+get_bits(ins,3,0);
-        }else{
+            p->register[15]=get_bits(ins,3,0) & 0xFFFFFFFE;
+        }
+        /*else{PAS DE BLX
             //c'est BXL
-            p->register[14]=p->register[14];
+            p->register[14]=p->register[15]; //LR<-adress
             p->register=p->register+get_bits(ins,3,0);
 
-        }
+        }*/
     }
 
 }
