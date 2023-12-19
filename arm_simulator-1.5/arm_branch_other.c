@@ -41,6 +41,7 @@ int arm_branch(arm_core p, uint32_t ins) {
             offset=offset << 2;//multiplier par 4
         }
         p->register[15]=p->register[15]+offset;//pc<-pc+offset
+        return 0;
 
     }
 
@@ -51,6 +52,7 @@ int arm_branch(arm_core p, uint32_t ins) {
             uint8_t n_registre= get_bits(ins,3,0);//n de registre code sur 4 bits
             uint32_t registre= p->reg[n_registre];//recuperer la valeur de ce registre
             p->register[15]=registre & 0xFFFFFFFE;//Page A4-20
+            return 0;
         }
         /*else{PAS DE BLX
             //c'est BXL
@@ -59,7 +61,7 @@ int arm_branch(arm_core p, uint32_t ins) {
 
         }*/
     }
-
+    return 1;
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
