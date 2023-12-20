@@ -80,8 +80,8 @@ uint32_t arm_read_register(arm_core p, uint8_t reg) // return Rreg value
 /*
 if (load_store == 0){ // Store
     if(B == 0){ // Word
-    	uint32_t val=arm_read_register(p,Rn)
-     	uint32_t address=arm_read_register(p,Rd);
+    	uint32_t val=arm_read_register(p,Rd)
+     	uint32_t address=arm_read_register(p,Rn);
         arm_write_word(p,address,val);                  
     }else{ //Byte
         uint32_t val=arm_read_register(p,Rn)
@@ -91,9 +91,12 @@ if (load_store == 0){ // Store
     
 }else{ // Load
     if(B == 0){ // Word
-
+	uint32_t address= arm_read_register(p,Rn);
+ 	uint32_t val;
+  	arm_read_word(p,address;val);
+   	arm_write_register(p,address,val);
     }else{ //Byte
-
+	//pareil mais avec un bit 
     }
 
 }
