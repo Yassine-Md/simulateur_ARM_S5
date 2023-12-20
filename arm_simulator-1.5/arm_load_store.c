@@ -97,37 +97,6 @@ int determine_addressing_mode(uint32_t ins){
     uint32_t bit_27_26 = get_bits (ins , 27 , 26);  // pour determiner si c'est un LDR/B STR/B | LDRH STRH
     //uint32_t always = 15;
 
-
-/*  utiliser ces fonction pour profiter des traces 
-int arm_read_word(arm_core p, uint32_t address, uint32_t *value) // return boolean
-int arm_read_byte(arm_core p, uint32_t address, uint8_t *value)  // return boolean
-int arm_write_byte(arm_core p, uint32_t address, uint8_t value)  // return boolean 
-int arm_write_word(arm_core p, uint32_t address, uint32_t value) // return boolean 
-
-void arm_write_register(arm_core p, uint8_t reg, uint32_t value) //return void modifie la valeur du registre Rreg = value
-uint32_t arm_read_register(arm_core p, uint8_t reg) // return Rreg value 
-*/
-
-/*
-if (load_store == 0){ // Store
-    if(B == 0){ // Word
-                                    
-    }else{ //Byte
-            
-    }
-    
-}else{ // Load
-    if(B == 0){ // Word
-
-    }else{ //Byte
-
-    }
-
-}
-
-
-*/
-
     uint32_t chargedValue ;
     uint32_t address ;
     uint32_t value ;   // l'address memory de la valeur a stocker dans Rd
