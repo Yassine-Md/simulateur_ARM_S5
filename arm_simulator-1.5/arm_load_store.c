@@ -92,86 +92,41 @@ int determine_addressing_mode(uint32_t ins){
     uint32_t I = get_bit(ins , 25);
     uint32_t bit_11_4 = get_bits (ins , 11 , 4);
     uint32_t bit_4 = get_bit(ins,4);
-
-    if(P == 0){
-        if(W == 0){
-            if(I == 0){
-                return IMMEDIATE_POST_INDEXED ;
-            }else{ // I == 1
-                if(bit_11_4 == 0){
-                    return REGISTER_POST_INDEXED ;
-                }
-                if(bit_4 == 0){
-                    SCALED_REGISTER_POST_INDEXED;
-                }
-            }
-        }else{ // W == 1
-            // undefined instruction  p459 privilege mode strt ldrt ...
-        }
-    }else{ // P == 1
-        if(W == 0){
-            if(I == 0){
-                return IMMEDIATE_OFFSET ;
-            }else{ // I == 1
-                if(bit_11_4 == 0){
-                    return REGISTER_OFFSET ;
-                }
-                if(bit_4 == 0){
-                    return SCALED_REGISTER_OFFSET ;
-                }
-            }
-        }else{ // W == 1
-            if(I == 0){
-                return IMMEDIATE_PRE_INDEXED ;
-            }else{ // I == 1
-                if(bit_11_4 == 0){
-                    return REGISTER_PRE_INDEXED ;
-                }
-                if(bit_4 == 0){
-                    return SCALED_REGISTER_PRE_INDEXED ;
-                }
-            }
-
-        }
-    }
-    // return undefined instruction gerer cette erreur  (en cas si bit_11_4 et bit_4 # 0) ou lorsque c'est pas definie 
-    return 999;
-}
-
-int handle_ldr_str(arm_core p, uint32_t ins) {
-    int addressing_mode = determine_addressing_mode(ins);
-
-    switch (addressing_mode) {
-        case IMMEDIATE_POST_INDEXED:
-            return handle_immediate_post_indexed(p, ins);
-        case REGISTER_POST_INDEXED:
-            return handle_register_post_indexed(p, ins);
-        case SCALED_REGISTER_POST_INDEXED:
-            return handle_scaled_register_post_indexed(p, ins);
-        case IMMEDIATE_OFFSET:
-            return handle_immediate_offset(p, ins);
-        case REGISTER_OFFSET:
-            return handle_register_offset(p, ins);
-        case SCALED_REGISTER_OFFSET:
-            return handle_scaled_register_offset(p, ins);
-        case IMMEDIATE_PRE_INDEXED:
-            return handle_immediate_pre_indexed(p, ins);
-        case REGISTER_PRE_INDEXED:
-            return handle_register_pre_indexed(p, ins);
-        case SCALED_REGISTER_PRE_INDEXED:
-            return handle_scaled_register_pre_indexed(p, ins);
-        default:
-            return UNDEFINED_INSTRUCTION;
-    }
-}
-
-
-int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) { 
-    
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
     uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
     uint32_t C_flag = get_bit (arm_read_cpsr(p) , 29);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t bit_27_26 = get_bits (ins , 27 , 26);  // pour determiner si c'est un LDR/B STR/B | LDRH STRH
+    //uint32_t always = 15;
+
+
+/*  utiliser ces fonction pour profiter des traces 
+int arm_read_word(arm_core p, uint32_t address, uint32_t *value) // return boolean
+int arm_read_byte(arm_core p, uint32_t address, uint8_t *value)  // return boolean
+int arm_write_byte(arm_core p, uint32_t address, uint8_t value)  // return boolean 
+int arm_write_word(arm_core p, uint32_t address, uint32_t value) // return boolean 
+
+void arm_write_register(arm_core p, uint8_t reg, uint32_t value) //return void modifie la valeur du registre Rreg = value
+uint32_t arm_read_register(arm_core p, uint8_t reg) // return Rreg value 
+*/
+
+/*
+if (load_store == 0){ // Store
+    if(B == 0){ // Word
+                                    
+    }else{ //Byte
+            
+    }
+    
+}else{ // Load
+    if(B == 0){ // Word
+
+    }else{ //Byte
+
+    }
+
+}
+
+
+*/
 
     uint32_t chargedValue ;
     uint32_t address ;
