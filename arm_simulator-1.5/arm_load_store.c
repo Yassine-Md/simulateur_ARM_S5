@@ -120,7 +120,7 @@ if (load_store == 0){ // Store
                         }
                         if (load_store == 0){ // Store
                             if(B == 0){ // Word
-                                //Rn 
+                                
                             }else{ //Byte
                                 
                             }
