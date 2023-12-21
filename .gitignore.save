@@ -1,0 +1,10 @@
+
+# Fichiers ZIP
+.zip
+
+
+# Ignore les fichiers objets
+*.o
+
+
+
