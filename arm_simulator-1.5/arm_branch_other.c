@@ -28,7 +28,7 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_branch(arm_core p, uint32_t ins) {
     //verification si c'est un branch immediate ou register
-    if( get_bits(ins, 27, 25)==5){
+    /*if( get_bits(ins, 27, 25)==5){
         //il s'agit d'une B ou BL
         if(get_bit(ins,24)==1){
             //il s'agit d'un BL
@@ -62,7 +62,7 @@ int arm_branch(arm_core p, uint32_t ins) {
             p->reg->general_registers[15]=registre & 0xFFFFFFFE;
 
         }
-    }
+    }*/
     return 1;
 }
 
@@ -74,7 +74,7 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 }
 
 int arm_miscellaneous(arm_core p, uint32_t ins) {
-    if (get_bits(ins,27,23)==2 && get_bits(ins,21,20)==0){
+    /*if (get_bits(ins,27,23)==2 && get_bits(ins,21,20)==0){
         if(get_bit(ins,22)==1){
             p->reg->general_registers[get_bits(ins,15,12)] =  p->reg->spsr[p->reg->current_mode];
             return 0;
@@ -85,5 +85,6 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
         return 1;
     } else {
         return UNDEFINED_INSTRUCTION;
-    }
+    }*/
+    return 999;
 }

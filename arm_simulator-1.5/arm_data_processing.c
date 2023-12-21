@@ -31,7 +31,7 @@ Contact: Guillaume.Huard@imag.fr
 
 
 
-// Immediate 
+/*// Immediate 
 int immedate(arm_core p , uint32_t *immed_8 ,uint32_t *rotate_imm , uint32_t *shifter_operand ){
     uint32_t shifter_carry_out ;
 
@@ -84,7 +84,7 @@ int logical_shift_left_by_register(arm_core p , uint32_t *Rs , uint32_t *Rm ,uin
         shifter_operand = 0;
         shifter_carry_out = get_bit(Rm,0);//Rm[0]
     }
-    else {/* Rs[7:0] > 32 */
+    else {// Rs[7:0] > 32 
         shifter_operand = 0 ;
         shifter_carry_out = 0 ;
     }
@@ -99,7 +99,7 @@ int logical_shift_right_by_immediate(arm_core p , uint32_t *shift_imm , uint32_t
         shifter_carry_out = get_bit(Rm , 31);//Rm[31]
     }
     
-    else {/* shift_imm > 0 */
+    else {// shift_imm > 0 
         shifter_operand = logical_shift_right(Rm , shift_imm);//Rm Logical_Shift_Right shift_imm
         shifter_carry_out = get_bit(Rm ,shift_imm - 1);//Rm[shift_imm - 1]
     }
@@ -123,7 +123,7 @@ int logical_shift_right_by_register(arm_core p , uint32_t *Rs , uint32_t *Rm ,){
         shifter_operand = 0;
         shifter_carry_out = get_bit(Rm , 31);//Rm[31]
     }
-    else{ /* Rs[7:0] > 32 */
+    else{ // Rs[7:0] > 32 
         shifter_operand = 0 ;
         shifter_carry_out = 0;
     }
@@ -318,13 +318,13 @@ static int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_
     
     
     return 0;
-}
+}*/
 
 
 
 /* Decoding functions for different classes of instructions */
 int arm_data_processing_shift(arm_core p, uint32_t ins) {
-    uint8_t opcode_shift = get_bit(ins,25);
+    /*uint8_t opcode_shift = get_bit(ins,25);
     uint8_t set_cond = get_bit(ins, 20);
     uint8_t rn = get_bits(ins, 19, 16);
     uint8_t rd = get_bits(ins, 15, 12);
@@ -415,7 +415,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
                 case 15:
                     mvn(p,op1,shifted_op2, rd , set_cond);
             }
-        }
+        }*/
     return UNDEFINED_INSTRUCTION;
 }
 

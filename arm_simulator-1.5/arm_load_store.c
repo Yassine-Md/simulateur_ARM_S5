@@ -40,6 +40,8 @@ P=1 et W=1 cela signifie que le registre de base est mis à jour avec le résult
 https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/memory-access-instructions/ldr-and-str--register-offset
 */
 
+// les fonctions handel doit renvoyer 
+
 
 // Define constants for instruction types
 #define LDR_STR_INSTRUCTION 1
@@ -228,7 +230,7 @@ int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) {
             arm_write_register(p, Rd, chargedValue);
         }else{ //Byte
             arm_read_byte(p , address , chargedValue);
-            arm_write_register(p, Rd, chargedValue);
+            arm_write_register(p, Rd, chargedValue);  
         }
 
     }
@@ -620,7 +622,7 @@ void initialize_scaled_register_variables(arm_core p, uint32_t ins,
 
 int handle_ldrh_strh(arm_core p, uint32_t ins) {
     
-    return result;
+    return 0;
 }
 
 
