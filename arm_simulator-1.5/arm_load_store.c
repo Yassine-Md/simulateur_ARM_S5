@@ -102,7 +102,7 @@ int determine_addressing_mode(uint32_t ins){
                     return REGISTER_POST_INDEXED ;
                 }
                 if(bit_4 == 0){
-                    SCALED_REGISTER_POST_INDEXED;
+                    return SCALED_REGISTER_POST_INDEXED;
                 }
             }
         }else{ // W == 1
@@ -168,14 +168,13 @@ int handle_ldr_str(arm_core p, uint32_t ins) {
 
 int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) { 
     
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U , load_store ,B;
     uint32_t C_flag = get_bit (arm_read_cpsr(p) , 29);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    void initialize_scaled_register_variables( p,  ins, &shift, &shift_imm,
+                          &Rd, &Rm, &Rn,&U, &load_store, &B) ;
 
     uint32_t chargedValue ;
     uint32_t address ;
-    uint32_t value ;   // l'address memory de la valeur a stocker dans Rd
     uint32_t index ;
     
 
@@ -215,36 +214,32 @@ int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) {
     }else{
         address = arm_read_register(p , Rn) - index ;
     }
-    if(cond == flags){
-        arm_write_register(p , Rn , address);
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                                            
-            }else{ //Byte
-                    
-            }
-        
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
-
+    arm_write_register(p , Rn , address);
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+                                        
+        }else{ //Byte
+                
         }
-    }else{// si l'instruction ne verifie pas les condtion 
-        //Exception
+    
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
     }
+    
 }
 
 
 int handle_register_pre_indexed(arm_core p, uint32_t ins) {
     
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t Rd, Rm, Rn, U, load_store ,B;
+    void initialize_register_variables(p, ins, &Rd, &Rm, &Rn, &U, &load_store, &B);
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -254,37 +249,32 @@ int handle_register_pre_indexed(arm_core p, uint32_t ins) {
     }else{
         address = arm_read_register(p , Rn) - arm_read_register(p , Rm) ;
     }
-    if (cond == flags){
-        arm_write_register(p , Rn , address);
+    arm_write_register(p , Rn , address);
 
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                                            
-            }else{ //Byte
-                    
-            }
-        
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
-
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+                                        
+        }else{ //Byte
+                
         }
-    }else{// si l'instruction ne verifie pas les condtion 
-        //Exception}
+    
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
     }
 }
 
 int handle_immediate_pre_indexed(arm_core p, uint32_t ins) {
 
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
-    uint32_t C_flag = get_bit (arm_read_cpsr(p) , 29);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t Rd, offset_12, Rn, U, load_store , B;
+    void initialize_immediate_variables(p, ins, &Rd, &Rn, &offset_12,
+                                        &U, &load_store, &B);
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -294,38 +284,35 @@ int handle_immediate_pre_indexed(arm_core p, uint32_t ins) {
     }else{
         address = arm_read_register(p , Rn) - offset_12 ;
     }
-    // si cond == au flags ZNCV de CPSR
-    if (cond == flags){
-        arm_write_register(p , Rn , address);
 
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                                            
-            }else{ //Byte
-                    
-            }
-        
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , address , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
+    arm_write_register(p , Rn , address);
 
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+                                        
+        }else{ //Byte
+                
         }
-    }else{ // si l'instruction ne verifie pas les condtion 
-        //Exception
+    
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , address , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
     }
+
 }
 
 int handle_scaled_register_offset(arm_core p, uint32_t ins) {
 
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
     uint32_t C_flag = get_bit (arm_read_cpsr(p) , 29);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U); 
+    void initialize_scaled_register_variables( p,  ins, &shift, &shift_imm,
+                          &Rd, &Rm, &Rn,&U, &load_store, &B) ;
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -388,8 +375,8 @@ int handle_scaled_register_offset(arm_core p, uint32_t ins) {
 
 int handle_register_offset(arm_core p, uint32_t ins) {
     
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
+    void initialize_register_variables(p, ins, &Rd, &Rm, &Rn, &U, &load_store, &B);
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -407,10 +394,10 @@ int handle_register_offset(arm_core p, uint32_t ins) {
         }
     }else{ // Load
         if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue);
+            arm_read_word(p , address , chargedValue);
             arm_write_register(p, Rd, chargedValue);
         }else{ //Byte
-            arm_read_byte(p , address , &chargedValue);
+            arm_read_byte(p , address , chargedValue);
             arm_write_register(p, Rd, chargedValue);
         }
 
@@ -419,9 +406,10 @@ int handle_register_offset(arm_core p, uint32_t ins) {
 
 int handle_immediate_offset(arm_core p, uint32_t ins) {
 
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
-
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
+    void initialize_immediate_variables(p, ins, &Rd, &Rn, &offset_12,
+                                        &U, &load_store, &B);
+    
     uint32_t chargedValue ;
     uint32_t address ;
 
@@ -439,10 +427,10 @@ int handle_immediate_offset(arm_core p, uint32_t ins) {
         
     }else{ // Load
         if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue);
+            arm_read_word(p , address , chargedValue);
             arm_write_register(p, Rd, chargedValue);
         }else{ //Byte
-            arm_read_byte(p , address , &chargedValue);
+            arm_read_byte(p , address , chargedValue);
             arm_write_register(p, Rd, chargedValue);
         }
 
@@ -451,10 +439,10 @@ int handle_immediate_offset(arm_core p, uint32_t ins) {
 
 int handle_scaled_register_post_indexed(arm_core p, uint32_t ins) {
 
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
     uint32_t C_flag = get_bit (arm_read_cpsr(p) , 29);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    void initialize_scaled_register_variables( p,  ins, &shift, &shift_imm,
+                          &Rd, &Rm, &Rn,&U, &load_store, &B) ;
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -491,81 +479,75 @@ int handle_scaled_register_post_indexed(arm_core p, uint32_t ins) {
                 index = ror(arm_read_register(p , Rm) , shift_imm);
             }
     }
-    if(cond == flags){
-        if(U == 1){
-            value = arm_read_register(p, Rn) + index;
-            arm_write_register(p, Rn, value);
-        }else{
-            value = arm_read_register(p, Rn) - index;
-            arm_write_register(p, Rn, value);
-        }
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                                            
-            }else{ //Byte
-                    
-            }
-            
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
-
-        }
-    }else{ // si l'instruction ne verifie pas les condtion 
-        //Exception
+    if(U == 1){
+        value = arm_read_register(p, Rn) + index;
+        arm_write_register(p, Rn, value);
+    }else{
+        value = arm_read_register(p, Rn) - index;
+        arm_write_register(p, Rn, value);
     }
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+                                        
+        }else{ //Byte
+                
+        }
+        
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
+    }
+
 }
 
 int handle_register_post_indexed(arm_core p, uint32_t ins) {
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
+    void initialize_register_variables(p, ins, &Rd, &Rm, &Rn, &U, &load_store, &B);
+
 
     uint32_t chargedValue ;
     uint32_t address ;
     uint32_t value ;   // l'address memory de la valeur a stocker dans Rd
 
     address = arm_read_register(p, Rn);
-    if(cond == flags){
-        if(U == 1){
-            value = arm_read_register(p, Rn) + arm_read_register(p, Rm) ;
-            arm_write_register(p, Rn, value);
-        }else{
-            value = arm_read_register(p, Rn) - arm_read_register(p, Rm);
-            arm_write_register(p, Rn, value);
-        }
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                                            
-            }else{ //Byte
-                    
-            }
-            
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
-
-        }
-    }else{ // si l'instruction ne verifie pas les condtion 
-        //Exception
+    if(U == 1){
+        value = arm_read_register(p, Rn) + arm_read_register(p, Rm) ;
+        arm_write_register(p, Rn, value);
+    }else{
+        value = arm_read_register(p, Rn) - arm_read_register(p, Rm);
+        arm_write_register(p, Rn, value);
     }
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+                                        
+        }else{ //Byte
+                
+        }
+        
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
+    }
+
 }
 
 int handle_immediate_post_indexed(arm_core p, uint32_t ins) {
 
-    uint32_t shift, shift_imm, Rd, Rm, Rn, U;
-    uint32_t flags = get_bits(arm_read_cpsr(p), 31 , 28);
-    initialize_variables(p , ins , &shift , &shift_imm , &Rd , &Rn , &Rm , &U);
+    uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
+    void initialize_immediate_variables(p, ins, &Rd, &Rn, &offset_12,
+                                        &U, &load_store, &B);
 
     uint32_t chargedValue ;
     uint32_t address ;
@@ -573,50 +555,68 @@ int handle_immediate_post_indexed(arm_core p, uint32_t ins) {
 
 
     address = arm_read_register(p, Rn);
-    if(cond == flags){
-        if(U == 1){
-            value = arm_read_register(p, Rn) + offset_12 ;
-            arm_write_register(p, Rn, value);
-        }else{
-            value = arm_read_register(p, Rn) - offset_12 ;
-            arm_write_register(p, Rn, value);
-        }
-        if (load_store == 0){ // Store
-            if(B == 0){ // Word
-                
-            }else{ //Byte
-                
-            } 
-        }else{ // Load
-            if(B == 0){ // Word
-                arm_read_word(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }else{ //Byte
-                arm_read_byte(p , value , &chargedValue);
-                arm_write_register(p, Rd, chargedValue);
-            }
 
-        }
-
-    }else{ // si l'instruction ne verifie pas les condtion 
-        // Exception
+    if(U == 1){
+        value = arm_read_register(p, Rn) + offset_12 ;
+        arm_write_register(p, Rn, value);
+    }else{
+        value = arm_read_register(p, Rn) - offset_12 ;
+        arm_write_register(p, Rn, value);
     }
+    if (load_store == 0){ // Store
+        if(B == 0){ // Word
+            
+        }else{ //Byte
+            
+        } 
+    }else{ // Load
+        if(B == 0){ // Word
+            arm_read_word(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }else{ //Byte
+            arm_read_byte(p , value , chargedValue);
+            arm_write_register(p, Rd, chargedValue);
+        }
+
+    }
+
 }
 
 
 // Common initialization function
-void initialize_variables(arm_core p, uint32_t ins,
-                          uint32_t* shift, uint32_t* shift_imm,
-                          uint32_t* Rd, uint32_t* Rm, uint32_t* Rn,
-                          uint32_t* U,
-                          ) {
-    *shift = get_bits(ins, 6, 5);
-    *shift_imm = get_bits(ins, 11, 7);
+void initialize_common_variables(arm_core p, uint32_t ins,
+                          uint32_t* Rd, uint32_t* Rn,
+                          uint32_t* U, uint32_t *load_store, uint32_t *B) {
     *Rd = get_bits(ins, 15, 12);
-    *Rm = get_bits(ins, 3, 0);
     *Rn = get_bits(ins, 19, 16);
     *U = get_bit(ins, 23);
+    *load_store = get_bit(ins, 20);
+    *B = get_bit(ins, 22);
 }
+
+void initialize_immediate_variables(arm_core p, uint32_t ins,
+                          uint32_t* Rd, uint32_t* Rn, uint32_t *offset_12,
+                          uint32_t* U, uint32_t *load_store, uint32_t *B) {
+    initialize_common_variables(Rd,Rn,U,load_store,B);
+    *offset_12 = get_bits(ins , 11 , 0);
+}
+
+void initialize_register_variables(arm_core p, uint32_t ins,
+                          uint32_t* Rd, uint32_t* Rm, uint32_t* Rn,
+                          uint32_t* U, uint32_t *load_store, uint32_t *B) {
+    initialize_common_variables(p,ins,Rd,Rn,U,load_store,B);
+    *Rm = get_bits(ins, 3, 0);
+}
+
+void initialize_scaled_register_variables(arm_core p, uint32_t ins,
+                          uint32_t* shift, uint32_t* shift_imm,
+                          uint32_t* Rd, uint32_t* Rm, uint32_t* Rn,
+                          uint32_t* U, uint32_t *load_store, uint32_t *B) {
+    initialize_register_variables(p,ins,Rd,Rm,Rn,U,load_store,B)
+    *shift = get_bits(ins, 6, 5);
+    *shift_imm = get_bits(ins, 11, 7);
+}
+
 
 int handle_ldrh_strh(arm_core p, uint32_t ins) {
     
