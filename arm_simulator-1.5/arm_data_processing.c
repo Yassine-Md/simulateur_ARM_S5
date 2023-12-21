@@ -29,6 +29,109 @@ Contact: Guillaume.Huard@imag.fr
 #include "registers.c"
 #include "arm_core.c"
 
+
+
+// Immediate 
+int immedate(arm_core p , uint32_t *immed_8 ,uint32_t *rotate_imm , uint32_t *shifter_operand ){
+    uint32_t shifter_carry_out ;
+
+    shifter_operand == ror(immed_8 , rotate_imm*2 );
+    if(rotate_imm == 0){
+        shifter_carry_out = arm_read_cpsr(p); // a voir // reccuperer le C_flag
+    }else{ // rotate_imm # 0
+        shifter_carry_out = shifter_operand[31];
+    }
+    return shifter_carry_out ;
+    
+}
+
+// register 
+int registerr(arm_core p , uint32_t Rm , uint32_t *shifter_operand ){
+    uint32_t shifter_carry_out ;
+    shifter_operand = Rm ;
+    shifter_carry_out = arm_read_cpsr(p) ; // recuuperer le C_flag
+    return shifter_carry_out ;
+}
+
+
+// Logical shift left by immediate
+ int logical_shift_left_by_immediate(arm_core p , uint32_t *shift_imm , uint32_t *Rm , uint32_t *shifter_operand){
+    uint32_t shifter_carry_out ;
+    if(shift_imm == 0){
+        shifter_operand = Rm ;
+        shifter_carry_out = arm_read_cpsr(p); // reccuperer le C_flag 
+    }else{
+        shifter_operand = logical_shift_left(Rm , shift_imm);
+        shifter_carry_out = Rm[32 - shift_imm]; // 32 !! il faut 64 bits
+    }
+ }
+
+// Logical shift left by register
+int logical_shift_left_by_register(arm_core p , uint32_t *Rs , uint32_t *Rm ,uint32_t *shifter_operand ){ // Rs et Rm : sont les valeurs des registers 
+    uint32_t shifter_carry_out;
+    uint32_t Rs_bit_7_0 = get_bits(Rs_value , 7 , 0);
+
+
+    if (Rs_bit_7_0 == 0) {
+        shifter_operand = Rm
+        shifter_carry_out = arm_read_cpsr(p) // reccup
+    }
+    else if (Rs_bit_7_0 < 32) {
+        shifter_operand = logical_shift_left(Rm,Rs_bit_7_0) ;//Rm Logical_Shift_Left Rs[7:0]
+        shifter_carry_out =  get_bit(Rm , 32 - Rs_bit_7_0); //Rm[32 - Rs[7:0]]
+    }
+    else if (get_bits(Rs_value , 7 , 0) == 32) {
+        shifter_operand = 0;
+        shifter_carry_out = get_bit(Rm,0);//Rm[0]
+    }
+    else {/* Rs[7:0] > 32 */
+        shifter_operand = 0 ;
+        shifter_carry_out = 0 ;
+    }
+    return shifter_carry_out ;
+}
+
+// Logical shift right by immediate
+int logical_shift_right_by_immediate(arm_core p , uint32_t *shift_imm , uint32_t *shifter_operand , uint32_t *Rm){
+    uint32_t shifter_carry_out ;
+    if (shift_imm == 0) {
+        shifter_operand = 0
+        shifter_carry_out = get_bit(Rm , 31);//Rm[31]
+    }
+    
+    else {/* shift_imm > 0 */
+        shifter_operand = logical_shift_right(Rm , shift_imm);//Rm Logical_Shift_Right shift_imm
+        shifter_carry_out = get_bit(Rm ,shift_imm - 1);//Rm[shift_imm - 1]
+    }
+    return shifter_carry_out ;
+}
+
+
+// Logical shift right by register
+int logical_shift_right_by_register(arm_core p , uint32_t *Rs , uint32_t *Rm ,){
+    uint32_t shifter_carry_out ;
+    uint32_t Rs_bit_7_0 = get_bits(Rs , 7 , 0); 
+    if( Rs_bit_7_0 == 0) {
+        shifter_operand = Rm ;
+        shifter_carry_out = arm_read_cpsr(p); //reccupererC Flag
+    }
+    else if (Rs_bit_7_0 < 32) {
+        shifter_operand = logical_shift_right(Rm , Rs_bit_7_0);//Rm Logical_Shift_Right Rs[7:0]
+        shifter_carry_out = get_bits(Rm , Rs_bit_7_0 - 1);//Rm[Rs[7:0] - 1]
+    }
+    else if (Rs_bit_7_0 == 32){
+        shifter_operand = 0;
+        shifter_carry_out = get_bit(Rm , 31);//Rm[31]
+    }
+    else{ /* Rs[7:0] > 32 */
+        shifter_operand = 0 ;
+        shifter_carry_out = 0;
+    }
+    return shifter_carry_out ;
+}
+
+
+
 static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
     uint32_t result = op1 & shifted_op2;
     arm_write_register(p, rd, result);
