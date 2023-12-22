@@ -587,6 +587,127 @@ int handle_immediate_post_indexed(arm_core p, uint32_t ins) {
 
 }
 
+int handle_immediate_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+        uint16_t chargedValue ;
+        uint32_t immedL = get_bits(ins , 3 , 0);
+        uint32_t immedH = get_bits(ins , 11 , 8);
+        uint32_t offset_8 = logical_shift_left(immedH , 4) | immedL ;
+        uint32_t address = arm_read_register(p, Rn);
+        if(U == 1){
+            address = address + offset_8 ;
+        }else{ // U == 0
+            address = address - offset_8 ;
+        }
+        if(load_store == 0){ // store
+            return arm_write_half(p , address , (uint16_t)arm_read_register(p,Rd));  
+        }else{ // ldr
+            arm_read_half(p , address , &chargedValue);
+            return arm_write_register(p, Rd, chargedValue);
+        }
+}
+
+
+int handle_register_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+    uint16_t chargedValue ;
+    uint32_t Rm = get_bits(ins , 3 , 0);
+    uint32_t address = arm_read_register(p, Rn);
+    if(U == 1){
+            address = address + arm_read_register(p, Rm); ;
+    }else{ // U == 0
+            address = address - arm_read_register(p, Rm); ;
+    }
+    if(load_store == 0){ // store
+        return arm_write_half(p , address , (uint16_t)arm_read_register(p,Rd));  
+    }else{ // ldr
+        arm_read_half(p , address , &chargedValue);
+        return arm_write_register(p, Rd, chargedValue);
+    }
+}
+
+
+int handle_immediate_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+    uint16_t chargedValue ;
+    uint32_t immedL = get_bits(ins , 3 , 0);
+    uint32_t immedH = get_bits(ins , 11 , 8);
+    uint32_t offset_8 = logical_shift_left(immedH , 4) | immedL ;
+    uint32_t address = arm_read_register(p, Rn);
+    if(U == 1){
+        address = address + offset_8 ;
+    }else{ // U == 0
+        address = address - offset_8 ;
+    }
+    if(load_store == 0){ // store
+        return arm_write_half(p , address , (uint16_t)arm_read_register(p,Rd));  
+    }else{ // ldr
+        arm_read_half(p , address , &chargedValue);
+        return arm_write_register(p, Rd, chargedValue);
+    }
+    // if ConditionPassed(cond) then
+    // Rn = address
+}
+
+int handle_register_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+    uint16_t chargedValue ;
+    uint32_t Rm = get_bits(ins , 3 , 0);
+    uint32_t address = arm_read_register(p, Rn);
+    if(U == 1){
+            address = address + arm_read_register(p, Rm); ;
+    }else{ // U == 0
+            address = address - arm_read_register(p, Rm); ;
+    }
+    if(load_store == 0){ // store
+        return arm_write_half(p , address , (uint16_t)arm_read_register(p,Rd));  
+    }else{ // ldr
+        arm_read_half(p , address , &chargedValue);
+        return arm_write_register(p, Rd, chargedValue);
+    }
+    /*
+    if ConditionPassed(cond) then
+    Rn = address
+    */
+}
+
+int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+    /*
+    address = Rn
+    offset_8 = (immedH << 4) OR immedL
+    if ConditionPassed(cond) then
+    if U == 1 then
+    Rn = Rn + offset_8
+    else // U == 0 
+    Rn = Rn - offset_8  
+    */
+}
+
+int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
+    /*
+    address = Rn
+    if ConditionPassed(cond) then
+    if U == 1 then
+    Rn = Rn + Rm
+    else /* U == 0 
+    Rn = Rn - Rm
+    
+    */
+}
+
+
+
+int handle_ldrh_strh(arm_core p, uint32_t ins) {
+    uint32_t Rd = get_bits(ins , 15 , 12);
+    uint32_t Rn = get_bits(ins , 19 , 16);
+    uint32_t B = get_bit(ins , 22);
+    uint32_t U = get_bit(ins , 23);
+    uint32_t load_store = get_bit(ins , 20);
+
+    // faut il mettre a jour Rn apres avoir calculer adresse ?? 
+    if(B == 1){ // immediate offset-index
+        return handle_register_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+    }else{ // Register ossfet-index
+        return handle_immediate_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+    }
+}
+
 
 // Common initialization function
 void initialize_common_variables(arm_core p, uint32_t ins,
@@ -623,16 +744,11 @@ void initialize_scaled_register_variables(arm_core p, uint32_t ins,
 }
 
 
-int handle_ldrh_strh(arm_core p, uint32_t ins) {
-    
-    return 0;
-}
-
 
 //*c'est l'exepetion DATA_ABORT
 //pour le load/store normal on va utiliser les commande LDM et STM */
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
-    /*//uint8_t cond = get_bits(ins,31,28);
+    //uint8_t cond = get_bits(ins,31,28);
     uint8_t P = get_bit(ins,24);//indicateur du mode d'adressage 1:mode post_increment(adresses sont incrémentées après le transfert)
     // 2:mode pre_increment(adresses sont décrémentées avant le transfert)
     uint8_t U = get_bit(ins,23);//bit U spécifie la direction de l'incrémentation/decrémentation des adresses. S'il est à 1, les adresses sont 
@@ -654,7 +770,7 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
                     address=address-4;
                     }
                 }
-                uint32_t val = arm_read_register(p,i)
+                uint32_t val = arm_read_register(p,i);
                 arm_write_word(p,address,val);
                 if(P==0){ 
                     if (U==1){
@@ -694,7 +810,7 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
                 }
             }
         }
-    }*/
+    }
     return DATA_ABORT;
 }
 
