@@ -23,7 +23,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_branch_other.h"
 #include "arm_constants.h"
 #include "util.h"
-#include <debug.h>
+#include "debug.h"
 #include <stdlib.h>
 
 int arm_branch(arm_core p, uint32_t ins) {
@@ -74,17 +74,21 @@ int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
 }
 
 int arm_miscellaneous(arm_core p, uint32_t ins) {
-    /*if (get_bits(ins,27,23)==2 && get_bits(ins,21,20)==0){
-        if(get_bit(ins,22)==1){
-            p->reg->general_registers[get_bits(ins,15,12)] =  p->reg->spsr[p->reg->current_mode];
-            return 0;
-        }else{
-            p->reg->general_registers[get_bits(ins,15,12)] = p->reg->cpsr;
-            return 0;
+    uint8_t Rd=get_bits(ins,15,12);
+    u_int8_t R = get_bit(ins, 22); // dire si on va prendre de cpsr (R=0) ou spsr (R=1)voi man p224
+    if (R==0){
+        uint32_t val_cpsr = arm_read_cpsr(p);
+        arm_write_register(p, Rd, val_cpsr);
+
+    }
+    else{
+        if (arm_current_mode_has_spsr(p)){
+            uint32_t val_spsr = arm_read_spsr(p);
+            arm_write_register(p, Rd, val_spsr);
         }
-        return 1;
-    } else {
-        return UNDEFINED_INSTRUCTION;
-    }*/
-    return 999;
+        else{
+            return UNDEFINED_INSTRUCTION;
+        }
+    }
+    return UNDEFINED_INSTRUCTION;
 }
