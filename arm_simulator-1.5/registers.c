@@ -25,32 +25,28 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdlib.h>
 
 
+// Structure pour représenter les données des registres
 struct registers_data {
-    uint32_t general_registers[16];
+    uint32_t tab_r0_r7[8];   
+    uint32_t tab_r8_r12[5][2];      
+    uint32_t tab_r13_r14[2][6];      
     uint32_t cpsr;
-    uint32_t spsr[5];  // SPSR pour chaque mode {FIQ , IRQ , SVC , ABT , UND }
+    uint32_t spsr[5];         // SPSR pour chaque mode {FIQ , IRQ , SVC , ABT , UND }
     uint8_t current_mode;
 };
 
 
 registers registers_create() {
     registers r = (registers)malloc(sizeof(struct registers_data));
-    if (r != NULL) {
-        // Initialiser les registres generaux
-        for (int i = 0; i < 16; i++) {
-            r->general_registers[i] = 0;
-        }
+    if(r != NULL){
 
-        // Initialiser le CPSR et le mode par defaut (SVC)  : pour faire passer les testes (USR ne passe pas le teste )
-        r->cpsr = 0;
+        // pas besoin d'initialiser les valeurs du tableau parce qu''il y a un reset au tout debut de lancement de arm_simulator
+
+        // Initialiser le mode par defaut (SVC)  : pour faire passer les testes (USR ne passe pas le teste )
         r->current_mode = SVC;
-
-        // Initialiser les SPSR pour chaque mode
-        for (int i = 0; i < 5; i++) {
-            r->spsr[i] = 0;
-        }
     }
-    return r;
+    return r ;
+
 }
 
 void registers_destroy(registers r) {
@@ -93,12 +89,36 @@ int registers_in_a_privileged_mode(registers r) {
 }
 
 uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
-    if(r != NULL){
-        if(reg < 16 && reg >= 0 ){
-            return r->general_registers[reg];
+        if(reg>=0 && reg<8){
+            return r->tab_r0_r7[reg];
         }
-    }
-    return UINT32_MAX;  // Valeur speciale indiquant une erreur (definie dans la bib stdint)
+        
+        if (reg >= 8 && reg <= 12) {
+            if(mode == FIQ){
+                return r->tab_r8_r12[reg - 8][1];
+            }else{
+                return r->tab_r8_r12[reg - 8][0];
+            }
+        
+        }
+        if(reg == 13 || reg == 14){
+            switch (mode){
+                case USR:
+                case SYS:
+                    return r->tab_r13_r14[reg-13][0] ;
+                case FIQ:
+                    return r->tab_r13_r14[reg-13][1] ;
+                case IRQ:
+                    return r->tab_r13_r14[reg-13][2];
+                case SVC:
+                    return r->tab_r13_r14[reg-13][3] ;
+                case UND:
+                    return r->tab_r13_r14[reg-13][4] ;
+                case ABT:
+                    return r->tab_r13_r14[reg-13][5] ;
+            }
+        }
+        return UINT32_MAX ; // en cas d'erreur 
 }
 
 uint32_t registers_read_cpsr(registers r) {
@@ -130,32 +150,43 @@ uint32_t registers_read_spsr(registers r, uint8_t mode) {
     return UINT32_MAX ;
 }
 
-void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
 
-    if (r != NULL){
-        switch (mode){
-            case USR :
-            case SYS :
-                if(reg < 16 && reg >= 0 ) {
-                    r->general_registers[reg] = value;
-                }
+void registers_write(struct registers_data* r, uint8_t reg, uint8_t mode, uint32_t value) {
+    if (r == NULL) {
+        // Gérer le cas où le pointeur vers les registres est NULL
+        return;
+    }
+
+    if (reg >= 0 && reg < 8) {
+        r->tab_r0_r7[reg] = value;
+    } else if (reg >= 8 && reg <= 12) {
+        if (mode == FIQ) {
+            r->tab_r8_r12[reg - 8][1] = value;
+        } else {
+            r->tab_r8_r12[reg - 8][0] = value;
+        }
+    } else if (reg == 13 || reg == 14) {
+        switch (mode) {
+            case USR:
+            case SYS:
+                r->tab_r13_r14[reg - 13][0] = value;
                 break;
-
-            case SVC:
-            case ABT:
-            case UND:
-            case IRQ:
-                if (reg < 16 && reg >= 0) {
-                    r->general_registers[reg] = value;
-                }
-                break;
-
             case FIQ:
-                if (reg < 8 && reg >= 0) {
-                        r->general_registers[reg] = value;
-                    }
-                break;     
-        }  
+                r->tab_r13_r14[reg - 13][1] = value;
+                break;
+            case IRQ:
+                r->tab_r13_r14[reg - 13][2] = value;
+                break;
+            case SVC:
+                r->tab_r13_r14[reg - 13][3] = value;
+                break;
+            case UND:
+                r->tab_r13_r14[reg - 13][4] = value;
+                break;
+            case ABT:
+                r->tab_r13_r14[reg - 13][5] = value;
+                break;
+        }
     }
 }
 
