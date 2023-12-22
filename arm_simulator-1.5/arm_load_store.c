@@ -140,6 +140,25 @@ int determine_addressing_mode(uint32_t ins){
     return 999;
 }
 
+// fonction pour faire les accees memoire et recuperer les valeurs soit pour effectuer le ldr soit le str
+int process_memory_access(arm_core p, uint32_t address, int load_store, int B, uint32_t Rd, uint32_t *chargedValue_word, uint8_t *chargedValue_byte) {
+    if (load_store == 0) { // Store
+        if (B == 0) { // Word
+            return arm_write_word(p, address, arm_read_register(p, Rd));
+        } else { // Byte
+            return arm_write_byte(p, address, (uint8_t)arm_read_register(p, Rd));
+        }
+    } else { // Load
+        if (B == 0) { // Word
+            arm_read_word(p, address, chargedValue_word);
+            return arm_write_register(p, Rd, *chargedValue_word);
+        } else { // Byte
+            arm_read_byte(p, address, chargedValue_byte);
+            return arm_write_register(p, Rd, *chargedValue_byte);
+        }
+    }
+}
+
 int handle_ldr_str(arm_core p, uint32_t ins) {
     int addressing_mode = determine_addressing_mode(ins);
 
@@ -218,21 +237,7 @@ int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) {
     }
     arm_write_register(p, Rn, address);
 
-    if (load_store == 0) { // Store
-        if (B == 0) { // Word
-            return arm_write_word(p, address, arm_read_register(p, Rd));
-        } else { // Byte
-            return arm_write_byte(p, address, (uint8_t)arm_read_register(p, Rd));
-        }
-    } else { // Load
-        if (B == 0) { // Word
-            arm_read_word(p, address, &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        } else { // Byte
-            arm_read_byte(p, address, &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-    }
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 }
 
 
@@ -252,23 +257,7 @@ int handle_register_pre_indexed(arm_core p, uint32_t ins) {
     }
     arm_write_register(p , Rn , address);
 
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));          
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
-    
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 }
 
 int handle_immediate_pre_indexed(arm_core p, uint32_t ins) {
@@ -289,23 +278,7 @@ int handle_immediate_pre_indexed(arm_core p, uint32_t ins) {
 
     arm_write_register(p , Rn , address);
 
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));       
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
-    
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 
 }
 
@@ -357,23 +330,8 @@ int handle_scaled_register_offset(arm_core p, uint32_t ins) {
     }else{
         address = arm_read_register(p , Rn) - index ;
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , Rd);           
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
     
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 }
 
 int handle_register_offset(arm_core p, uint32_t ins) {
@@ -390,22 +348,8 @@ int handle_register_offset(arm_core p, uint32_t ins) {
     }else{
         address  = arm_read_register(p , Rn) - arm_read_register(p , Rm) ;
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));             
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 }
 
 int handle_immediate_offset(arm_core p, uint32_t ins) {
@@ -423,23 +367,8 @@ int handle_immediate_offset(arm_core p, uint32_t ins) {
     }else{
         address= arm_read_register(p , Rn) - offset_12 ;
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));                 
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
-        
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 }
 
 int handle_scaled_register_post_indexed(arm_core p, uint32_t ins) {
@@ -491,23 +420,8 @@ int handle_scaled_register_post_indexed(arm_core p, uint32_t ins) {
         address = address - index;
         arm_write_register(p, Rn, address);
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));      
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd)); 
-        }
-        
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 
 }
 
@@ -528,23 +442,8 @@ int handle_register_post_indexed(arm_core p, uint32_t ins) {
         address = address - arm_read_register(p, Rm);
         arm_write_register(p, Rn, address);
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));            
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd));
-        }
-        
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 
 }
 
@@ -568,22 +467,8 @@ int handle_immediate_post_indexed(arm_core p, uint32_t ins) {
         address = address - offset_12 ;
         arm_write_register(p, Rn, address);
     }
-    if (load_store == 0){ // Store
-        if(B == 0){ // Word
-            return arm_write_word(p , address , arm_read_register(p,Rd));   
-        }else{ //Byte
-            return arm_write_byte(p , address , (uint8_t)arm_read_register(p,Rd));  
-        } 
-    }else{ // Load
-        if(B == 0){ // Word
-            arm_read_word(p , address , &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
-        }else{ //Byte
-            arm_read_byte(p , address , &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
-        }
-
-    }
+    
+    process_memory_access(p, address, load_store, B, Rd, chargedValue_word, &chargedValue_byte);
 
 }
 
@@ -655,6 +540,7 @@ int handle_register_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t R
     }else{ // U == 0
             address = address - arm_read_register(p, Rm); ;
     }
+    // RN = address on peut le faire ici parce que les condition sont deja verifier depuis arm_instruction 
     if(load_store == 0){ // store
         return arm_write_half(p , address , (uint16_t)arm_read_register(p,Rd));  
     }else{ // ldr
@@ -664,7 +550,7 @@ int handle_register_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t R
     /*
     if ConditionPassed(cond) then
     Rn = address
-    */
+    */ 
 }
 
 int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
