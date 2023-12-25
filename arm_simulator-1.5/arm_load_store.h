@@ -25,7 +25,9 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
-
+int handle_immediate_common(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store);
+uint32_t calculate_address_scaled_register(arm_core p, uint32_t Rn, uint32_t Rm_value, uint32_t shift, uint32_t shift_imm, uint32_t U, uint32_t C_flag);
+uint32_t calculate_address(arm_core p, uint32_t Rn, uint32_t offset, uint32_t U);
 int process_memory_access_half(arm_core p, uint32_t address, uint32_t load_store, uint32_t Rd);
 int process_memory_access(arm_core p, uint32_t address, int load_store, int B, uint32_t Rd, uint32_t *chargedValue_word, uint8_t *chargedValue_byte);
 int handle_immediate_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
