@@ -25,22 +25,12 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_constants.h"
 #include "util.h"
 #include "debug.h"
-
-
-
-
-
-/*
-P=1 et W=0 cela signifie que le registre de base reste inchangé après l'accès à la mémoire.
-P=1 et W=1 cela signifie que le registre de base est mis à jour avec le résultat après l'accès à la mémoire
-*/
+#include <stdbool.h>
 
 
 /* A voir pour ajouter des conditions de verification
 https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/memory-access-instructions/ldr-and-str--register-offset
 */
-
-// les fonctions handel doit renvoyer 
 
 
 // Define constants for instruction types
@@ -111,20 +101,20 @@ bool is_immediate_offset(uint32_t ins) {
 }
 
 int handle_memory_operation(arm_core p, uint32_t ins, uint32_t write_back) {
-    uint32_t offset;
+    uint32_t offset, Rn, U, B, load_store, Rd;
 
     // Choose the correct offset based on the instruction type
     if (is_scaled_register_offset(ins)) {
-        uint32_t shift, shift_imm, Rd, Rm, Rn, U, load_store, B;
+        uint32_t shift, shift_imm, Rm;
         uint32_t C_flag = get_bit(arm_read_cpsr(p), 29);
         initialize_scaled_register_variables(p, ins, &shift, &shift_imm, &Rd, &Rm, &Rn, &U, &load_store, &B);
         offset = calculate_address_scaled_register(p, Rn, arm_read_register(p, Rm), shift, shift_imm, U, C_flag);
     } else if (is_register_offset(ins)) {
-        uint32_t Rd, Rm, Rn, U, load_store, B;
+        uint32_t Rm;
         initialize_register_variables(p, ins, &Rd, &Rm, &Rn, &U, &load_store, &B);
         offset = arm_read_register(p, Rm);
     } else if (is_immediate_offset(ins)) {
-        uint32_t Rd, offset_12, Rn, U, load_store, B;
+        uint32_t offset_12;
         initialize_immediate_variables(p, ins, &Rd, &Rn , &offset_12, &U, &load_store, &B);
         offset = offset_12;
     } else {
@@ -209,7 +199,7 @@ int handle_register_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint
 }
 
 
-int determine_addressing_mode(uint32_t ins){
+int determine_addressing_mode_ldr_str(uint32_t ins){
     uint32_t P = get_bit(ins , 24);
     uint32_t W = get_bit(ins , 21);
     uint32_t I = get_bit(ins , 25);
@@ -266,6 +256,33 @@ int determine_addressing_mode(uint32_t ins){
     }
 }
 
+
+int determine_addressing_mode_ldrh_strh(uint32_t ins){
+    if(get_bits(ins,27,24) == 0x0000){
+        if(get_bits(ins,22,21) == 0x10){
+            return IMMEDIATE_POST_INDEXED;
+        }else if(get_bits(ins,22,21) == 0x00){
+            return REGISTER_POST_INDEXED;
+        }else{
+            return UNDEFINED_INSTRUCTION ;
+        }
+    }else if (get_bits(ins,27,24) == 0x0001){
+        if(get_bits(ins,22,21) == 0x10){
+            return IMMEDIATE_OFFSET;
+        }else if(get_bits(ins,22,21) == 0x00){
+            return REGISTER_OFFSET;
+        }else if(get_bits(ins,22,21) == 0x11){
+            return IMMEDIATE_PRE_INDEXED;
+        }else if(get_bits(ins,22,21) == 0x01){
+            return REGISTER_PRE_INDEXED;
+        }else{
+            return UNDEFINED_INSTRUCTION ;
+        }
+    }else{
+        return UNDEFINED_INSTRUCTION;
+    }
+}
+
 // fonction pour faire les accees memoire et recuperer les valeurs soit pour effectuer le ldr soit le str
 int process_memory_access(arm_core p, uint32_t address, int load_store, int B, uint32_t Rd) {
     if (load_store == 0) { // Store
@@ -276,13 +293,13 @@ int process_memory_access(arm_core p, uint32_t address, int load_store, int B, u
         }
     } else { // Load
         if (B == 0) { // Word
-            uint32_t chargedValue_word
-            arm_read_word(p, address, chargedValue_word);
-            return arm_write_register(p, Rd, &chargedValue_word);
+            uint32_t chargedValue_word;
+            arm_read_word(p, address, &chargedValue_word);
+            return arm_write_register(p, Rd, chargedValue_word);
         } else { // Byte
             uint8_t chargedValue_byte;
-            arm_read_byte(p, address, chargedValue_byte);
-            return arm_write_register(p, Rd, &chargedValue_byte);
+            arm_read_byte(p, address, &chargedValue_byte);
+            return arm_write_register(p, Rd, chargedValue_byte);
         }
     }
 }
@@ -299,8 +316,9 @@ int process_memory_access_half(arm_core p, uint32_t address, uint32_t load_store
     }
 }
 
+
 int handle_ldr_str(arm_core p, uint32_t ins) {
-    int addressing_mode = determine_addressing_mode(ins);
+    int addressing_mode = determine_addressing_mode_ldr_str(ins);
 
     switch (addressing_mode) {
         case IMMEDIATE_POST_INDEXED:
@@ -326,6 +344,28 @@ int handle_ldr_str(arm_core p, uint32_t ins) {
     }
 }
 
+int handle_ldrh_strh(arm_core p, uint32_t ins) {
+    int addressing_mode = determine_addressing_mode_ldr_str(ins);
+    uint32_t Rd, Rn, U, load_store;
+    initialize_common_variables(p, ins, &Rd, &Rn, &U, &load_store, NULL) ;
+
+    switch (addressing_mode) {
+        case IMMEDIATE_POST_INDEXED:
+            return handle_immediate_post_indexed_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        case REGISTER_POST_INDEXED:
+            return handle_register_post_indexed_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        case IMMEDIATE_OFFSET:
+            return handle_immediate_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        case REGISTER_OFFSET:
+            return handle_register_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        case IMMEDIATE_PRE_INDEXED:
+            return handle_immediate_pre_indexed_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        case REGISTER_PRE_INDEXED:
+            return handle_register_pre_indexed_ldrh_strh(p , ins , Rd , Rn , U , load_store);
+        default:
+            return UNDEFINED_INSTRUCTION;
+    }
+}
 
 int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins) {
     return handle_memory_operation(p, ins, 1);
@@ -392,19 +432,6 @@ int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t
 
 int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
     return handle_register_common_ldrh_strh(p, ins, Rd, Rn, U, load_store, 1);
-}
-
-
-int handle_ldrh_strh(arm_core p, uint32_t ins) {
-    uint32_t Rd , Rn , B , U , load_store ;
-    initialize_common_variables(p, ins, &Rd, &Rn, &U, &load_store, &B);
-
-    // faut il mettre a jour Rn apres avoir calculer adresse ?? 
-    if(B == 1){ // immediate offset-index
-        return handle_register_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
-    }else{ // Register ossfet-index
-        return handle_immediate_offset_ldrh_strh(p , ins , Rd , Rn , U , load_store);
-    }
 }
 
 
