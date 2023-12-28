@@ -27,5 +27,6 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_data_processing_shift(arm_core p, uint32_t ins);
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
+int rotate_right_with_extend(arm_core p,uint32_t rm,uint32_t *shifter_operand);
 
 #endif
