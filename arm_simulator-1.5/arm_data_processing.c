@@ -288,7 +288,7 @@ void nzc_shifftercarry_update (arm_core p, uint32_t result, int  c){
 static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c ){
     uint32_t result = op1 & shifted_op2;
     arm_write_register(p, rd, result);
-    if (set_cond==1 == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
+    if (set_cond==1 == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{

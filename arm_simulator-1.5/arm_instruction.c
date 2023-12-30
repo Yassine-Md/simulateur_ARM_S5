@@ -107,7 +107,7 @@ static int arm_execute_instruction(arm_core p) {
         uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
         if(ConditionPassed(p , value)){ // si les conditons sont verifier 
             switch(cat_inst){
-                case 0:
+                case 0: // a modifier 
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:
                         return arm_miscellaneous(p, value);  // pour mrs
