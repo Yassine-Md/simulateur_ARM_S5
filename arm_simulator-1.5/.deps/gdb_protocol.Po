@@ -8,8 +8,8 @@ gdb_protocol.o: gdb_protocol.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/long-double.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
  /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -60,7 +60,7 @@ gdb_protocol.o: gdb_protocol.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/select.h \
  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
+ /usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h registers.h memory.h \
  trace_location.h trace.h arm_constants.h arm_exception.h \
@@ -98,7 +98,6 @@ gdb_protocol.o: gdb_protocol.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
  /usr/include/x86_64-linux-gnu/sys/time.h \
  /usr/include/x86_64-linux-gnu/sys/wait.h \
- /usr/include/x86_64-linux-gnu/bits/types/idtype_t.h \
  /usr/include/x86_64-linux-gnu/sys/stat.h \
  /usr/include/x86_64-linux-gnu/bits/stat.h \
  /usr/include/x86_64-linux-gnu/bits/struct_stat.h /usr/include/fcntl.h \
@@ -108,8 +107,7 @@ gdb_protocol.o: gdb_protocol.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/mman.h \
  /usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h \
  /usr/include/x86_64-linux-gnu/bits/mman-linux.h \
- /usr/include/x86_64-linux-gnu/bits/mman-shared.h \
- /usr/include/x86_64-linux-gnu/bits/mman_ext.h /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/mman-shared.h /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
@@ -149,8 +147,8 @@ gdb_protocol.o: gdb_protocol.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/long-double.h:
 /usr/include/x86_64-linux-gnu/gnu/stubs.h:
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h:
 /usr/include/x86_64-linux-gnu/bits/types.h:
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
 /usr/include/x86_64-linux-gnu/bits/time64.h:
@@ -211,7 +209,7 @@ arm_core.h:
 /usr/include/x86_64-linux-gnu/bits/select.h:
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
+/usr/lib/gcc/x86_64-linux-gnu/11/include/stdint.h:
 /usr/include/stdint.h:
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
@@ -263,7 +261,6 @@ csapp.h:
 /usr/include/x86_64-linux-gnu/bits/signal_ext.h:
 /usr/include/x86_64-linux-gnu/sys/time.h:
 /usr/include/x86_64-linux-gnu/sys/wait.h:
-/usr/include/x86_64-linux-gnu/bits/types/idtype_t.h:
 /usr/include/x86_64-linux-gnu/sys/stat.h:
 /usr/include/x86_64-linux-gnu/bits/stat.h:
 /usr/include/x86_64-linux-gnu/bits/struct_stat.h:
@@ -275,7 +272,6 @@ csapp.h:
 /usr/include/x86_64-linux-gnu/bits/mman-map-flags-generic.h:
 /usr/include/x86_64-linux-gnu/bits/mman-linux.h:
 /usr/include/x86_64-linux-gnu/bits/mman-shared.h:
-/usr/include/x86_64-linux-gnu/bits/mman_ext.h:
 /usr/include/math.h:
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:
 /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:

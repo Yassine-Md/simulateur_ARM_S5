@@ -56,6 +56,7 @@ int ConditionPassed(arm_core p, uint32_t ins) {
     uint32_t n = get_bit(cpsr, N);
     uint32_t v = get_bit(cpsr, V);
 
+
     switch (cond) {
         case EQ:
             return (z == 1) ? 1 : 0;
