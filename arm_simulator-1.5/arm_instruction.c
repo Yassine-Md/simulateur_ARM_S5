@@ -97,7 +97,7 @@ int ConditionPassed(arm_core p, uint32_t ins) {
 
 static int arm_execute_instruction(arm_core p) {
     uint32_t value ; 
-    int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
+    int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon -1
     if (res == 0 ){ // fetch bien passer
         uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
         uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
