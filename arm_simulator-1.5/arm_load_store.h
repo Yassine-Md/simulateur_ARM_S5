@@ -25,6 +25,21 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
+
+int determine_addressing_mode_ldrh_strh(uint32_t ins);
+int handle_memory_operation(arm_core p, uint32_t ins, uint32_t write_back);
+int handle_register_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store, uint32_t write_back);
+int handle_immediate_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store , uint32_t write_back) ;
+uint32_t calculate_address_scaled_register(arm_core p, uint32_t Rn, uint32_t Rm_value, uint32_t shift, uint32_t shift_imm, uint32_t U, uint32_t C_flag);
+uint32_t calculate_address(arm_core p, uint32_t Rn, uint32_t offset, uint32_t U);
+int process_memory_access_half(arm_core p, uint32_t address, uint32_t load_store, uint32_t Rd);
+int process_memory_access(arm_core p, uint32_t address, int load_store, int B, uint32_t Rd);
+int handle_immediate_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
+int handle_register_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
+int handle_immediate_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
+int handle_register_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
+int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
+int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
 void initialize_common_variables(arm_core p, uint32_t ins,
                           uint32_t* Rd, uint32_t* Rn,
                           uint32_t* U, uint32_t *load_store, uint32_t *B);
@@ -49,7 +64,7 @@ int handle_immediate_pre_indexed(arm_core p, uint32_t ins);
 int handle_register_pre_indexed(arm_core p, uint32_t ins);
 int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins);
 int handle_ldr_str(arm_core p, uint32_t ins);
-int determine_addressing_mode(uint32_t ins);
+int determine_addressing_mode_ldr_str(uint32_t ins);
 int determine_instruction_type(uint32_t ins);
 int arm_load_store(arm_core p, uint32_t ins);
 int arm_load_store_multiple(arm_core p, uint32_t ins);
