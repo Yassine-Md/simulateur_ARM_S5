@@ -91,7 +91,8 @@ host_triplet = x86_64-pc-linux-gnu
 noinst_PROGRAMS = example1$(EXEEXT) \
 	example2$(EXEEXT) example3$(EXEEXT) \
 	example4$(EXEEXT) \
-	insertion_sort$(EXEEXT)
+	insertion_sort$(EXEEXT) \
+	exempleB$(EXEEXT) exemple$(EXEEXT)
 subdir = Examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -115,6 +116,12 @@ example3_LDADD = $(LDADD)
 am_example4_OBJECTS = example4.$(OBJEXT)
 example4_OBJECTS = $(am_example4_OBJECTS)
 example4_LDADD = $(LDADD)
+am_exemple_OBJECTS = exemple.$(OBJEXT)
+exemple_OBJECTS = $(am_exemple_OBJECTS)
+exemple_LDADD = $(LDADD)
+am_exempleB_OBJECTS = exempleB.$(OBJEXT)
+exempleB_OBJECTS = $(am_exempleB_OBJECTS)
+exempleB_LDADD = $(LDADD)
 am_insertion_sort_OBJECTS = insertion_sort.$(OBJEXT) \
 	my_syscalls.$(OBJEXT)
 insertion_sort_OBJECTS = $(am_insertion_sort_OBJECTS)
@@ -154,10 +161,11 @@ am__v_CCAS_ = $(am__v_CCAS_$(AM_DEFAULT_VERBOSITY))
 am__v_CCAS_0 = @echo "  CCAS    " $@;
 am__v_CCAS_1 = 
 SOURCES = $(example1_SOURCES) $(example2_SOURCES) $(example3_SOURCES) \
-	$(example4_SOURCES) $(insertion_sort_SOURCES)
-DIST_SOURCES = $(example1_SOURCES) $(example2_SOURCES) \
-	$(example3_SOURCES) $(example4_SOURCES) \
+	$(example4_SOURCES) $(exemple_SOURCES) $(exempleB_SOURCES) \
 	$(insertion_sort_SOURCES)
+DIST_SOURCES = $(example1_SOURCES) $(example2_SOURCES) \
+	$(example3_SOURCES) $(example4_SOURCES) $(exemple_SOURCES) \
+	$(exempleB_SOURCES) $(insertion_sort_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -183,12 +191,12 @@ am__define_uniq_tagged_files = \
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/home/amine/Documents/arm/arm_simulator-1.5/build-aux/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' autoconf
-AUTOHEADER = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' autoheader
-AUTOMAKE = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' automake-1.16
+AUTOCONF = ${SHELL} '/home/amine/Documents/arm/arm_simulator-1.5/build-aux/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/amine/Documents/arm/arm_simulator-1.5/build-aux/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/amine/Documents/arm/arm_simulator-1.5/build-aux/missing' automake-1.16
 AWK = mawk
 CC = $(GCC_CROSS)
 CCAS = $(GCC_CROSS)
@@ -208,7 +216,7 @@ ECHO_T =
 EGREP = /usr/bin/grep -E
 ETAGS = etags
 EXEEXT = 
-GCC_CROSS = arm-none-eabi-gcc
+GCC_CROSS = arm-linux-gnueabi-gcc
 GREP = /usr/bin/grep
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -222,7 +230,7 @@ LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/amine/Documents/arm/arm_simulator-1.5/build-aux/missing' makeinfo
 MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
 PACKAGE = arm_simulator
@@ -237,10 +245,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 VERSION = 1.5
-abs_builddir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/Examples
-abs_srcdir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/Examples
-abs_top_builddir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
-abs_top_srcdir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
+abs_builddir = /home/amine/Documents/arm/arm_simulator-1.5/Examples
+abs_srcdir = /home/amine/Documents/arm/arm_simulator-1.5/Examples
+abs_top_builddir = /home/amine/Documents/arm/arm_simulator-1.5
+abs_top_srcdir = /home/amine/Documents/arm/arm_simulator-1.5
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -267,7 +275,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/install-sh
+install_sh = ${SHELL} /home/amine/Documents/arm/arm_simulator-1.5/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -305,6 +313,8 @@ example1_SOURCES = example1.s
 example2_SOURCES = example2.s
 example3_SOURCES = example3.s
 example4_SOURCES = example4.s
+exempleB_SOURCES = exempleB.s
+exemple_SOURCES = exemple.s
 insertion_sort_SOURCES = insertion_sort.c my_syscalls.s my_syscalls.h
 EXTRA_DIST = linker_script
 all: all-am
@@ -359,6 +369,14 @@ example3$(EXEEXT): $(example3_OBJECTS) $(example3_DEPENDENCIES) $(EXTRA_example3
 example4$(EXEEXT): $(example4_OBJECTS) $(example4_DEPENDENCIES) $(EXTRA_example4_DEPENDENCIES) 
 	@rm -f example4$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(example4_OBJECTS) $(example4_LDADD) $(LIBS)
+
+exemple$(EXEEXT): $(exemple_OBJECTS) $(exemple_DEPENDENCIES) $(EXTRA_exemple_DEPENDENCIES) 
+	@rm -f exemple$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(exemple_OBJECTS) $(exemple_LDADD) $(LIBS)
+
+exempleB$(EXEEXT): $(exempleB_OBJECTS) $(exempleB_DEPENDENCIES) $(EXTRA_exempleB_DEPENDENCIES) 
+	@rm -f exempleB$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(exempleB_OBJECTS) $(exempleB_LDADD) $(LIBS)
 
 insertion_sort$(EXEEXT): $(insertion_sort_OBJECTS) $(insertion_sort_DEPENDENCIES) $(EXTRA_insertion_sort_DEPENDENCIES) 
 	@rm -f insertion_sort$(EXEEXT)

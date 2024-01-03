@@ -28,17 +28,18 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_branch(arm_core p, uint32_t ins) {
     //verification si c'est un branch immediate ou register
-    /*if( get_bits(ins, 27, 25)==5){
+    if( get_bits(ins, 27, 25)==5){ //POURQUOI TU VERIFIE LA CONDIOTION ENCORE
         //il s'agit d'une B ou BL
         if(get_bit(ins,24)==1){
             //il s'agit d'un BL
-            p->reg->general_registers[14]=p->reg->general_registers[15];
-         }
-        uint32_t offset= (uint32_t )get_bits(ins,23,0);
-        if(get_bit(offset,23)==1){
-            offset=offset << 2;//multiplier par 4
+            arm_write_register(p, 14, arm_read_register(p, 15));
         }
-        p->reg->general_registers[15]=p->reg->general_registers[15]+offset;//pc<-pc+offset
+        uint32_t offset=get_bits(ins,23,0);
+        if(get_bit(offset,23)==1){
+            offset = set_bits(offset, 29, 24, 0x3F);
+        }
+        offset=logical_shift_left(offset , 2);
+        arm_write_register(p, 14, arm_read_register(p, 15)+offset);//pc<-pc+offset 14 not pc
         return 0;
 
     }
@@ -50,20 +51,23 @@ int arm_branch(arm_core p, uint32_t ins) {
         if(get_bits(ins,7,4)==1){
             //c'est un BX
             n_registre= get_bits(ins,3,0);//n de registre code sur 4 bits
-            registre= p->reg->general_registers[n_registre];//recuperer la valeur de ce registre
-            p->reg->general_registers[15]=registre & 0xFFFFFFFE;//Page A4-20
+            registre= arm_read_register(p, n_registre);//recuperer la valeur de ce registre
+            arm_write_register(p, 15, (registre & 0xFFFFFFFE));//Page A4-20
             return 0;
         }
         else if (get_bits(ins,7,4)==3){
             //c'est BXL
             n_registre= get_bits(ins,3,0);
-            registre=p->reg->general_registers[n_registre];
-            p->reg->general_registers[14]=p->reg->general_registers[15]; //LR<-pc
-            p->reg->general_registers[15]=registre & 0xFFFFFFFE;
-
+            registre=arm_read_register(p, n_registre);
+            arm_write_register(p, 14, registre); //LR<-adresse de Rm
+            arm_write_register(p, 15, registre & 0xFFFFFFFE);
+            return 0;
         }
-    }*/
-    return 1;
+        return UNDEFINED_INSTRUCTION;
+    }else{
+        return UNDEFINED_INSTRUCTION;
+    }
+
 }
 
 int arm_coprocessor_others_swi(arm_core p, uint32_t ins) {
