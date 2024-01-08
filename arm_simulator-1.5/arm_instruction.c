@@ -109,6 +109,9 @@ static int arm_execute_instruction(arm_core p) {
         if(ConditionPassed(p , value)){ // si les conditons sont verifier 
             switch(cat_inst){
                 case 0:
+                    if (get_bits(value,27,20)==18){
+                        return arm_branch(p, value );
+                    }
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:
                         return arm_miscellaneous(p, value);  // pour mrs
@@ -145,7 +148,8 @@ static int arm_execute_instruction(arm_core p) {
                 case 4: // load store multiple
                     return arm_load_store_multiple(p, value );
 
-                case 5: // branche with link 
+                case 5: // branche with link
+
                     return arm_branch(p, value );
 
                 case 6: // Coprocessor load/store and double register transfers
