@@ -98,6 +98,7 @@ int ConditionPassed(arm_core p, uint32_t ins) {
 static int arm_execute_instruction(arm_core p) {
     uint32_t value ; 
     int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
+    printf("res arm_instruction : %d \n ", res);
     if (res == 0 ){ // fetch bien passer
         uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
         uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
@@ -107,56 +108,73 @@ static int arm_execute_instruction(arm_core p) {
         //reccuperer les bits de 25 a 27 de value pour avoir la categorie de l'instruction
         uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
         if(ConditionPassed(p , value)){ // si les conditons sont verifier 
+        printf("condition passed , OK \n");
             switch(cat_inst){
                 case 0: // a modifier 
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:
+                        printf("arm_instruction case 0 Miscellaneous instruction \n");
                         return arm_miscellaneous(p, value);  // pour mrs
                     } else if(bit_4 == 1 && bit_7 == 1){
+                        printf("arm_instruction case 0 UNDEFINED \n");
                         return UNDEFINED_INSTRUCTION ;// undefine on va pas traiter les extra load store et les multiplies
-                    } else {
+                    } else if (bit_4 == 1 || bit_4 == 0 ){
+                        printf("arm_instruction case 0 data processing \n");
                         return arm_data_processing_shift(p, value);
+                    }else{
+                        return UNDEFINED_INSTRUCTION ;
                     }
                 case 1:
                     if ((bit_24_23 == 2)&& (bit_21_20 == 0)){
                         // Undifined instruction
+                        printf("arm_instruction case 1 UNDEFINED \n");
                         return UNDEFINED_INSTRUCTION ;
                     }else{
                         //move immediate to status register  (mettre à jour le registre d'état avec une valeur immédiate)
                         //data prcessing immediate (effectuer des opérations arithmétiques ou logiques sur des données immédiates)
+                         printf("arm_instruction case 1 data processing\n");
                         return arm_data_processing_shift(p ,value );
                     }
                 case 2: // Load/store immediate offset
+                 printf("arm_instruction case 2 LOAD \n");
                     return arm_load_store(p, value);
 
                 case 3: // Load/store register offset
                     if(bit_4 == 0){
+                        printf("arm_instruction case 3 LOAD \n");
                         return arm_load_store(p , value);
                     }else{
                         if(get_bits(value,24,20) == 0b11111){
+                            printf("arm_instruction case 3 UNDEFINED \n");
                             // architecturally undefined
                             return UNDEFINED_INSTRUCTION;
                         }
                         else{
                             // media instruction 
+                             printf("arm_instruction case 3 coprocesseur \n");
                             return arm_coprocessor_others_swi(p , value);
                         }   
                     }
                 case 4: // load store multiple
+                 printf("arm_instruction case 4 LOAD multiple \n");
                     return arm_load_store_multiple(p, value );
 
                 case 5: // branche with link 
+                 printf("arm_instruction case 5 branch \n");
                     return arm_branch(p, value );
 
                 case 6: // Coprocessor load/store and double register transfers
+                 printf("arm_instruction case 6 coprocesseur load \n");
                     return arm_coprocessor_load_store(p, value);
                 
                 case 7: 
                     if(get_bit(value , 24) == 0){
                         //coprocessor data processing
                         //coprocessor register transfers
+                         printf("arm_instruction case 7 coprocesseur \n");
                         return arm_coprocessor_others_swi(p , value);
                     }else{
+                         printf("arm_instruction case 7 INTERRUPT \n");
                         // software interrupt
                         return INTERRUPT ;
                     }

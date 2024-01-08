@@ -92,4 +92,7 @@ void registers_write_cpsr(registers r, uint32_t value);
 // Return : Aucun.
 void registers_write_spsr(registers r, uint8_t mode, uint32_t value);
 
+
+int mode_update(registers r);
+
 #endif

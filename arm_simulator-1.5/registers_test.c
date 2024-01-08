@@ -75,3 +75,24 @@ int main() {
 
     return 0;
 }
+
+
+/*int main (){
+    registers r;
+    r = registers_create();
+    if (r == NULL) {
+        fprintf(stderr, "Error when creating simulated registers\n");
+        exit(1);
+    }
+    printf("Reseting registers...\n");
+    registers_write_cpsr(r, 0x1d3);
+    uint8_t mode = registers_get_mode(r);
+    printf("mode est : %d" , mode);
+    registers_write(r, 15, mode, 0);
+    int word_read = registers_read(r, 15, mode);
+    printf("pc : %d\n" , word_read);
+
+    registers_write(r, 2, mode, 2);
+    printf("R2 : %d\n" , registers_read(r, 2, mode));
+    return 0 ;
+}*/

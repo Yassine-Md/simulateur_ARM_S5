@@ -21,12 +21,14 @@ Contact: Guillaume.Huard@imag.fr
 	 38401 Saint Martin d'H�res
 */
 #include "registers.h"
+#include "util.h"
 #include "arm_constants.h"
 #include <stdlib.h>
 
 
 // Structure pour représenter les données des registres
 struct registers_data {
+    uint32_t pc;
     uint32_t tab_r0_r7[8];   
     uint32_t tab_r8_r12[5][2];      
     uint32_t tab_r13_r14[2][6];      
@@ -39,9 +41,6 @@ struct registers_data {
 registers registers_create() {
     registers r = (registers)malloc(sizeof(struct registers_data));
     if(r != NULL){
-
-        // pas besoin d'initialiser les valeurs du tableau parce qu''il y a un reset au tout debut de lancement de arm_simulator
-
         // Initialiser le mode par defaut (SVC)  : pour faire passer les testes (USR ne passe pas le teste )
         r->current_mode = SVC;
     }
@@ -89,27 +88,27 @@ int registers_in_a_privileged_mode(registers r) {
 }
 
 uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
-        if(reg>=0 && reg<8){
+    if (r == NULL) {
+        return UINT32_MAX; // ou une autre valeur appropriée en cas de pointeur NULL
+    }
+
+    switch (reg) {
+        case 15:
+            return r->pc;
+        case 0 ... 7:
             return r->tab_r0_r7[reg];
-        }
-        
-        if (reg >= 8 && reg <= 12) {
-            if(mode == FIQ){
-                return r->tab_r8_r12[reg - 8][1];
-            }else{
-                return r->tab_r8_r12[reg - 8][0];
-            }
-        
-        }
-        if(reg == 13 || reg == 14){
-            switch (mode){
+        case 8 ... 12:
+            return (mode == FIQ) ? r->tab_r8_r12[reg - 8][1] : r->tab_r8_r12[reg - 8][0];
+        case 13:
+        case 14:
+            switch (mode) {
                 case USR:
                 case SYS:
                     return r->tab_r13_r14[reg-13][0] ;
                 case FIQ:
                     return r->tab_r13_r14[reg-13][1] ;
                 case IRQ:
-                    return r->tab_r13_r14[reg-13][2];
+                    return r->tab_r13_r14[reg-13][2] ;
                 case SVC:
                     return r->tab_r13_r14[reg-13][3] ;
                 case UND:
@@ -117,8 +116,9 @@ uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
                 case ABT:
                     return r->tab_r13_r14[reg-13][5] ;
             }
-        }
-        return UINT32_MAX ; // en cas d'erreur 
+    }
+
+    return UINT32_MAX; // en cas d'erreur
 }
 
 uint32_t registers_read_cpsr(registers r) {
@@ -151,12 +151,14 @@ uint32_t registers_read_spsr(registers r, uint8_t mode) {
 }
 
 
-void registers_write(struct registers_data* r, uint8_t reg, uint8_t mode, uint32_t value) {
+void registers_write(registers r, uint8_t reg, uint8_t mode, uint32_t value) {
     if (r == NULL) {
-        // Gérer le cas où le pointeur vers les registres est NULL
+        // Gurer le cas ou le pointeur vers les registres est NULL
         return;
     }
-
+    if(reg == 15){
+        r->pc = value ;
+    }
     if (reg >= 0 && reg < 8) {
         r->tab_r0_r7[reg] = value;
     } else if (reg >= 8 && reg <= 12) {
@@ -190,10 +192,26 @@ void registers_write(struct registers_data* r, uint8_t reg, uint8_t mode, uint32
     }
 }
 
+int mode_update(registers r){
+    int mode_bits = get_bits(r->cpsr ,4 ,0);
+    switch(mode_bits){
+        case USR: return USR ;
+        case FIQ: return FIQ ;
+        case IRQ: return IRQ ;
+        case SVC: return SVC ;
+        case ABT: return ABT ;
+        case UND: return UND ; 
+        case SYS: return SYS ;
+        default :
+            return -1;
+    }
+}
+
 void registers_write_cpsr(registers r, uint32_t value) {
     if (r != NULL) {
         r->cpsr = value;
-        //mettre a jour current_mode ! masquage ...
+        //mettre a jour current_mode 
+        r->current_mode = mode_update(r);
     }
 }
 

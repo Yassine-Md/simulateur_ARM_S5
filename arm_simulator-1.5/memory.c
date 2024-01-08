@@ -21,6 +21,7 @@ Contact: Guillaume.Huard@imag.fr
 	 38401 Saint Martin d'H�res
 */
 #include <stdlib.h>
+#include <stdio.h>
 #include "memory.h"
 #include "util.h"
 
@@ -75,6 +76,7 @@ int memory_read_half(memory mem, uint32_t address, uint16_t *value, uint8_t be) 
 }
 
 int memory_read_word(memory mem, uint32_t address, uint32_t *value, uint8_t be) {
+    printf("memory_read_word mem vaut : %p \n and the address : %d \n", mem , address);
     if (mem == NULL || address  >= mem->capacity-3)
         return -1;
 
