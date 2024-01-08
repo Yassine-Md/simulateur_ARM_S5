@@ -97,12 +97,7 @@ int ConditionPassed(arm_core p, uint32_t ins) {
 
 static int arm_execute_instruction(arm_core p) {
     uint32_t value ; 
-<<<<<<< HEAD
     int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
-    printf("res arm_instruction : %d \n ", res);
-=======
-    int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon -1
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
     if (res == 0 ){ // fetch bien passer
         uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
         uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
@@ -114,14 +109,10 @@ static int arm_execute_instruction(arm_core p) {
         if(ConditionPassed(p , value)){ // si les conditons sont verifier 
         printf("condition passed , OK \n");
             switch(cat_inst){
-<<<<<<< HEAD
-                case 0: // a modifier 
-=======
                 case 0:
                     if (get_bits(value,27,20)==18){
                         return arm_branch(p, value );
                     }
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:
                         printf("arm_instruction case 0 Miscellaneous instruction \n");
@@ -170,13 +161,8 @@ static int arm_execute_instruction(arm_core p) {
                  printf("arm_instruction case 4 LOAD multiple \n");
                     return arm_load_store_multiple(p, value );
 
-<<<<<<< HEAD
-                case 5: // branche with link 
-                 printf("arm_instruction case 5 branch \n");
-=======
                 case 5: // branche with link
 
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
                     return arm_branch(p, value );
 
                 case 6: // Coprocessor load/store and double register transfers

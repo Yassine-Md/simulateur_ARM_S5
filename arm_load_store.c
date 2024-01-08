@@ -39,19 +39,6 @@ https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/
 #define LDR_STR_INSTRUCTION 1
 #define LDRH_STRH_INSTRUCTION 2
 
-// Define constants for addressing modes
-#define IMMEDIATE_POST_INDEXED 10
-#define REGISTER_POST_INDEXED 11
-#define SCALED_REGISTER_POST_INDEXED 12
-#define IMMEDIATE_OFFSET 13
-#define REGISTER_OFFSET 14
-#define SCALED_REGISTER_OFFSET 15
-#define IMMEDIATE_PRE_INDEXED 16
-#define REGISTER_PRE_INDEXED 17
-#define SCALED_REGISTER_PRE_INDEXED 18
-
-// Define constants for error
-// UNDEFINED_INSTRUCTION 
 
 // return 0 si tout est bien passer sinon i#0
 int arm_load_store(arm_core p, uint32_t ins) {
@@ -78,33 +65,6 @@ int determine_instruction_type(uint32_t ins) {
         return  UNDEFINED_INSTRUCTION ;//ERROR ;
     }
 
-}
-
-
-bool is_scaled_register_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
-    printf("bit 4 %d\n" , get_bit(ins,4));
-    if((get_bits(ins,27,25) == 3) && (get_bit(ins,4)== 0)){
-        return true;
-    }
-    return false;
-}
-
-bool is_register_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
-    printf("bit 11 4 %d\n" , get_bits(ins,11,4));
-    if((get_bits(ins,27,25) == 3) && (get_bits(ins,11,4)== 0)){
-        return true;
-    }
-    return false;
-}
-
-bool is_immediate_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
-    if(get_bits(ins,27,25) == 2){
-        return true ;
-    }
-    return false;
 }
 
 

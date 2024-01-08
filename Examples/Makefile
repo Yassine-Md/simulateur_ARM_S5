@@ -91,8 +91,7 @@ host_triplet = x86_64-pc-linux-gnu
 noinst_PROGRAMS = example1$(EXEEXT) \
 	example2$(EXEEXT) example3$(EXEEXT) \
 	example4$(EXEEXT) \
-	insertion_sort$(EXEEXT) \
-	exempleB$(EXEEXT) exemple$(EXEEXT)
+	insertion_sort$(EXEEXT)
 subdir = Examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -116,12 +115,6 @@ example3_LDADD = $(LDADD)
 am_example4_OBJECTS = example4.$(OBJEXT)
 example4_OBJECTS = $(am_example4_OBJECTS)
 example4_LDADD = $(LDADD)
-am_exemple_OBJECTS = exemple.$(OBJEXT)
-exemple_OBJECTS = $(am_exemple_OBJECTS)
-exemple_LDADD = $(LDADD)
-am_exempleB_OBJECTS = exempleB.$(OBJEXT)
-exempleB_OBJECTS = $(am_exempleB_OBJECTS)
-exempleB_LDADD = $(LDADD)
 am_insertion_sort_OBJECTS = insertion_sort.$(OBJEXT) \
 	my_syscalls.$(OBJEXT)
 insertion_sort_OBJECTS = $(am_insertion_sort_OBJECTS)
@@ -161,11 +154,10 @@ am__v_CCAS_ = $(am__v_CCAS_$(AM_DEFAULT_VERBOSITY))
 am__v_CCAS_0 = @echo "  CCAS    " $@;
 am__v_CCAS_1 = 
 SOURCES = $(example1_SOURCES) $(example2_SOURCES) $(example3_SOURCES) \
-	$(example4_SOURCES) $(exemple_SOURCES) $(exempleB_SOURCES) \
-	$(insertion_sort_SOURCES)
+	$(example4_SOURCES) $(insertion_sort_SOURCES)
 DIST_SOURCES = $(example1_SOURCES) $(example2_SOURCES) \
-	$(example3_SOURCES) $(example4_SOURCES) $(exemple_SOURCES) \
-	$(exempleB_SOURCES) $(insertion_sort_SOURCES)
+	$(example3_SOURCES) $(example4_SOURCES) \
+	$(insertion_sort_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -313,8 +305,6 @@ example1_SOURCES = example1.s
 example2_SOURCES = example2.s
 example3_SOURCES = example3.s
 example4_SOURCES = example4.s
-exempleB_SOURCES = exempleB.s
-exemple_SOURCES = exemple.s
 insertion_sort_SOURCES = insertion_sort.c my_syscalls.s my_syscalls.h
 EXTRA_DIST = linker_script
 all: all-am
@@ -369,14 +359,6 @@ example3$(EXEEXT): $(example3_OBJECTS) $(example3_DEPENDENCIES) $(EXTRA_example3
 example4$(EXEEXT): $(example4_OBJECTS) $(example4_DEPENDENCIES) $(EXTRA_example4_DEPENDENCIES) 
 	@rm -f example4$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(example4_OBJECTS) $(example4_LDADD) $(LIBS)
-
-exemple$(EXEEXT): $(exemple_OBJECTS) $(exemple_DEPENDENCIES) $(EXTRA_exemple_DEPENDENCIES) 
-	@rm -f exemple$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(exemple_OBJECTS) $(exemple_LDADD) $(LIBS)
-
-exempleB$(EXEEXT): $(exempleB_OBJECTS) $(exempleB_DEPENDENCIES) $(EXTRA_exempleB_DEPENDENCIES) 
-	@rm -f exempleB$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(exempleB_OBJECTS) $(exempleB_LDADD) $(LIBS)
 
 insertion_sort$(EXEEXT): $(insertion_sort_OBJECTS) $(insertion_sort_DEPENDENCIES) $(EXTRA_insertion_sort_DEPENDENCIES) 
 	@rm -f insertion_sort$(EXEEXT)

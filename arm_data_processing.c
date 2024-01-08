@@ -78,10 +78,6 @@ int Rotate_right_by_immediate(arm_core p,uint8_t shift_imm,uint32_t rm,uint32_t 
 
 int rotate_right_by_register(uint32_t rs,uint32_t rm,uint32_t *shifter_operand,arm_core p){
     int shifter_carry_out;
-<<<<<<< HEAD
-    uint32_t value;
-=======
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
     //int c_flag= get_bit(arm_read_cpsr(p), 29);
     if (get_bits(rs,7,0)==0){
         *shifter_operand=rm;
@@ -108,14 +104,8 @@ int rotate_right_with_extend(arm_core p,uint32_t rm,uint32_t *shifter_operand){
 // Immediate
 int immedate(arm_core p , uint8_t immed_8 ,uint8_t rotate_imm , uint32_t *shifter_operand ){
     uint32_t shifter_carry_out ;
-<<<<<<< HEAD
     
     *shifter_operand = ror(immed_8 , rotate_imm*2 );
-=======
-
-    *shifter_operand= ror(immed_8 , rotate_imm*2 );
-
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
     if(rotate_imm == 0){
         shifter_carry_out = get_bit(arm_read_cpsr(p), 29); // reccuperer le C_flag
     }else{ // rotate_imm # 0
@@ -281,11 +271,7 @@ void nzc_shifftercarry_update (arm_core p, uint32_t result, int  c){
 static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c ){
     uint32_t result = op1 & shifted_op2;
     arm_write_register(p, rd, result);
-<<<<<<< HEAD
     if ((set_cond == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
-=======
-    if ((set_cond==1 ) && (arm_read_register(p,rd) == arm_read_register(p,15))){
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{
@@ -459,16 +445,8 @@ static int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 
 
 static int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
-    printf("mov call\n");
-    printf("rd %d\n" , rd);
-    printf("shifted_op2 %d\n" , shifted_op2);
     arm_write_register(p, rd, shifted_op2);
-<<<<<<< HEAD
-    printf("valeur de registre modifier1 %d\n", arm_read_register(p,rd));
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
-=======
-    if ((set_cond == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{

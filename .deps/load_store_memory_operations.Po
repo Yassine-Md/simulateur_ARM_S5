@@ -1,6 +1,6 @@
-arm_load_store.o: arm_load_store.c /usr/include/stdc-predef.h \
- arm_load_store.h /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h \
- /usr/include/stdint.h \
+load_store_memory_operations.o: load_store_memory_operations.c \
+ /usr/include/stdc-predef.h arm_exception.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -47,12 +47,11 @@ arm_load_store.o: arm_load_store.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h registers.h memory.h \
- trace_location.h trace.h arm_exception.h arm_constants.h \
- load_store_addressing_operations.h util.h debug.h \
- load_store_memory_operations.h \
- /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h
+ trace_location.h trace.h arm_constants.h load_store_memory_operations.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
+ load_store_addressing_operations.h util.h debug.h
 /usr/include/stdc-predef.h:
-arm_load_store.h:
+arm_exception.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
 /usr/include/stdint.h:
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
@@ -109,10 +108,9 @@ registers.h:
 memory.h:
 trace_location.h:
 trace.h:
-arm_exception.h:
 arm_constants.h:
+load_store_memory_operations.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 load_store_addressing_operations.h:
 util.h:
 debug.h:
-load_store_memory_operations.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:

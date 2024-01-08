@@ -7,15 +7,9 @@
 // Structure pour représenter les données des registres
 struct registers_data {
     uint32_t pc;
-<<<<<<< HEAD
     uint32_t tab_r0_r7[8];   
     uint32_t tab_r8_r12[5][2];      
     uint32_t tab_r13_r14[2][6];      
-=======
-    uint32_t tab_r0_r7[8];
-    uint32_t tab_r8_r12[5][2];
-    uint32_t tab_r13_r14[2][6];
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
     uint32_t cpsr;
     uint32_t spsr[5];         // SPSR pour chaque mode {FIQ , IRQ , SVC , ABT , UND }
     uint8_t current_mode;
@@ -184,11 +178,7 @@ int mode_update(registers r){
         case IRQ: return IRQ ;
         case SVC: return SVC ;
         case ABT: return ABT ;
-<<<<<<< HEAD
         case UND: return UND ; 
-=======
-        case UND: return UND ;
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
         case SYS: return SYS ;
         default :
             return -1;
@@ -198,11 +188,7 @@ int mode_update(registers r){
 void registers_write_cpsr(registers r, uint32_t value) {
     if (r != NULL) {
         r->cpsr = value;
-<<<<<<< HEAD
         //mettre a jour current_mode 
-=======
-        //mettre a jour current_mode ! masquage ...
->>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
         r->current_mode = mode_update(r);
     }
 }

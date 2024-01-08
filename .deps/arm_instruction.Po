@@ -47,8 +47,7 @@ arm_instruction.o: arm_instruction.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h registers.h memory.h \
  trace_location.h trace.h arm_exception.h arm_data_processing.h \
- arm_load_store.h /usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h \
- arm_branch_other.h arm_constants.h util.h
+ arm_load_store.h arm_branch_other.h arm_constants.h util.h
 /usr/include/stdc-predef.h:
 arm_instruction.h:
 arm_core.h:
@@ -110,7 +109,6 @@ trace.h:
 arm_exception.h:
 arm_data_processing.h:
 arm_load_store.h:
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdbool.h:
 arm_branch_other.h:
 arm_constants.h:
 util.h:
