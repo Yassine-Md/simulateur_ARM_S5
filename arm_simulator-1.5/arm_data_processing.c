@@ -632,7 +632,7 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
     }
     if (R==0){
         if (arm_in_a_privileged_mode(p)){
-            if ((operand) & (state_mask!=0)){
+            if ((operand) & (state_mask) != 0){
                 return UNDEFINED_INSTRUCTION;
             }
             else{
