@@ -43,7 +43,7 @@ int arm_exception(arm_core p, uint8_t exception) {
         address -= 8;
         uint32_t instruction;
         arm_read_word(p, address, &instruction);
-        instruction &= 0xFFFFFF;
+        instruction = instruction & 0xFFFFFF;
         switch (instruction) {
         case 0x123456:
             return END_SIMULATION;
@@ -59,7 +59,63 @@ int arm_exception(arm_core p, uint8_t exception) {
         arm_write_cpsr(p, cpsr);
         arm_write_register(p, 15, 0);
     }
-    return exception;
+   
+
+    if(exception == DATA_ABORT){
+        //R14_abt = address of the aborted instruction + 8
+        arm_write_register(p,14,(arm_read_register(p,15) -4) + 8);
+        //SPSR_abt = CPSR
+        arm_write_spsr(p,arm_read_cpsr(p));
+        //CPSR[4:0] = 0b10111 Enter Abort mode 
+        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) | 0b10111);
+        //CPSR[5] = 0  Execute in ARM state 
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
+        //CPSR[7] = 1  Disable normal interrupts 
+        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
+        //CPSR[8] = 1 /* Disable Imprecise Data Aborts (v6 only) 
+        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
+        arm_write_register(p, 15, 0);
+    }
+
+    if(exception == INTERRUPT){
+        //R14_abt = address of the aborted instruction + 8
+        arm_write_register(p,14,(arm_read_register(p,15) -4) + 4);
+        //SPSR_abt = CPSR
+        arm_write_spsr(p,arm_read_cpsr(p));
+        //CPSR[4:0] = 0b10111 Enter Abort mode 
+        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) | 0b10010);
+        //CPSR[5] = 0  Execute in ARM state 
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
+        //CPSR[7] = 1  Disable normal interrupts 
+        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
+        //CPSR[8] = 1 /* Disable Imprecise Data Aborts (v6 only) 
+        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
+        arm_write_register(p, 15, 0x00000018);
+    }
+
+    if(exception == UNDEFINED_INSTRUCTION){
+        //R14_abt = address of the aborted instruction + 8
+        arm_write_register(p,14,arm_read_register(p,15));
+        //SPSR_abt = CPSR
+        arm_write_spsr(p,arm_read_cpsr(p));
+        //CPSR[4:0] = 0b10111 Enter Abort mode 
+        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) |  0b11011);
+        //CPSR[5] = 0  Execute in ARM state 
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
+        //CPSR[7] = 1  Disable normal interrupts 
+        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
+
+        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
+        arm_write_register(p, 15, 0x00000004);
+    }
+
+
+
+     return exception;
+
+
 }
 
 
