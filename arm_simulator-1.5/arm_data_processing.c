@@ -548,82 +548,8 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     //Passing c paramater to some function calls to ensure the C flag update after the shiftter 
     //    operand since some others already got their own calculs for it
     switch (code_op){
-        case 0:int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-   uint8_t SBO = get_bits(ins,15,12);
-   uint8_t SBZ = get_bits(ins,11,8);
-   uint8_t R =get_bit(ins,22);
-   uint8_t I = get_bit(ins,25);
-   uint8_t rotate_imm = get_bits(ins,11,8);
-   uint8_t field_mask = get_bits(ins,19,16);
-   uint8_t bits_0_7 = get_bits(ins,8,0);
-   uint8_t operand;
-   uint32_t mask ;
-   /*-----------------------------------------------*/
-    uint32_t user_mask  = 0xF0000000; 
-    uint32_t priv_mask  = 0x0000000F;
-    uint32_t state_mask = 0x00000020;
-    /*-------------------------------------------------*/
-   if (I == 0)
-   {
-       uint8_t Rm = get_bits(bits_0_7, 3, 0);
-       uint8_t bit_0 = get_bits(bits_0_7, 7, 4);
-        if (bit_0==0){
-            operand = arm_read_register(p, Rm);
-        }
-        else{
-            return UNDEFINED_INSTRUCTION;
-        }
-   }
-    else{
-        operand = ror(bits_0_7, rotate_imm);
-    }
-    uint32_t byte_mask=0x00000000;
-    if(get_bit(field_mask, 0)==1){
-        byte_mask |= 0x000000FF;
-    }
-    if(get_bit(field_mask, 0)==1){
-        byte_mask |= 0x0000FF00;
-    }
-    if(get_bit(field_mask, 0)==1){
-        byte_mask |= 0x00FF0000;
-    }
-    if(get_bit(field_mask, 0)==1){
-        byte_mask |= 0xFF000000;
-    }
-    if (R==0){
-        if (arm_in_a_privileged_mode(p)){
-            if (operand &state_mask!=0){
-                return UNDEFINED_INSTRUCTION;
-            }
-            else{
-                uint32_t user_mask = 0xF8000000;
-                uint32_t priv_mask = 0x0000000F;
-                mask = byte_mask & (user_mask | priv_mask);
-            }
-        }
-        else{
-            mask = byte_mask & user_mask;
-        }
-        mask = byte_mask & user_mask;
-        uint32_t cpsr = arm_read_cpsr(p);
-        cpsr = (cpsr & !mask) | (operand & mask);
-        arm_write_cpsr(p, cpsr);
-    }
-    else{
-        if(arm_current_mode_has_spsr(p)){
-            mask = byte_mask & (user_mask | priv_mask | state_mask);
-            uint32_t spsr = arm_read_spsr(p);
-            spsr = (spsr & !mask) | (operand & mask);
-            arm_write_spsr(p, spsr);
-        }
-        else{
-            return UNDEFINED_INSTRUCTION;
-        }
-    }
-    return DATA_ABORT;
-}
-
-            return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
+        case 0:
+        return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
         case 1:
             return eor(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
         case 2:
@@ -664,8 +590,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-   uint8_t SBO = get_bits(ins,15,12);
-   uint8_t SBZ = get_bits(ins,11,8);
+ 
    uint8_t R =get_bit(ins,22);
    uint8_t I = get_bit(ins,25);
    uint8_t rotate_imm = get_bits(ins,11,8);
@@ -707,7 +632,7 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
     }
     if (R==0){
         if (arm_in_a_privileged_mode(p)){
-            if (operand &state_mask!=0){
+            if ((operand) & (state_mask!=0)){
                 return UNDEFINED_INSTRUCTION;
             }
             else{
