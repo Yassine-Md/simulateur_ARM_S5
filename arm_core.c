@@ -180,6 +180,7 @@ int arm_fetch(arm_core p, uint32_t *value) {
     result = memory_read_word(p->mem, address, value, ENDIANESS);
     printf("memory read word %d \n", result);
     p->cycle_count++;
+
     trace_memory(p->cycle_count, READ, 4, OPCODE_FETCH, address, *value);
     return result;
 }

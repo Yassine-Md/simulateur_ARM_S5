@@ -161,9 +161,15 @@ configure:4875: gcc -o conftest -Wall -Werror -g --debug   conftest.c  >&5
 configure:4875: $? = 0
 configure:4888: result: none needed
 configure:4903: checking for library containing yywrap
+<<<<<<< HEAD
 configure:4933: gcc -o conftest -Wall -Werror -g --debug   conftest.c  >&5
 /usr/bin/ld: /tmp/ccQDxZM8.o: in function `main':
 /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/conftest.c:19:(.text+0xa): undefined reference to `yywrap'
+=======
+configure:4933: gcc -o conftest -Wall -Werror -g   conftest.c  >&5
+/usr/bin/ld: /tmp/cc63dhbc.o: in function `main':
+/home/amine/Documents/arm/arm_simulator-1.5/conftest.c:19: undefined reference to `yywrap'
+>>>>>>> de55d15050cbd9a6dedeb1d4014bbef4b506564d
 collect2: error: ld returned 1 exit status
 configure:4933: $? = 1
 configure: failed program was:

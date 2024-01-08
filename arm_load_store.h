@@ -30,10 +30,8 @@ Contact: Guillaume.Huard@imag.fr
 bool is_immediate_offset(uint32_t ins);
 bool is_register_offset(uint32_t ins);
 bool is_scaled_register_offset(uint32_t ins);
-int handle_memory_operation(arm_core p, uint32_t ins, uint32_t write_back);
 int handle_register_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store, uint32_t write_back);
 int handle_immediate_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store , uint32_t write_back) ;
-int process_memory_access_half(arm_core p, uint32_t address, uint32_t load_store, uint32_t Rd);
 int process_memory_access(arm_core p, uint32_t address, int load_store, int B, uint32_t Rd);
 int handle_immediate_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
 int handle_register_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
@@ -41,19 +39,6 @@ int handle_immediate_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t 
 int handle_register_pre_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
 int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
 int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
-void initialize_common_variables(arm_core p, uint32_t ins,
-                          uint32_t* Rd, uint32_t* Rn,
-                          uint32_t* U, uint32_t *load_store, uint32_t *B);
-void initialize_immediate_variables(arm_core p, uint32_t ins,
-                          uint32_t* Rd, uint32_t* Rn, uint32_t *offset_12,
-                          uint32_t* U, uint32_t *load_store, uint32_t *B);
-void initialize_register_variables(arm_core p, uint32_t ins,
-                          uint32_t* Rd, uint32_t* Rm, uint32_t* Rn,
-                          uint32_t* U, uint32_t *load_store, uint32_t *B);
-void initialize_scaled_register_variables(arm_core p, uint32_t ins,
-                          uint32_t* shift, uint32_t* shift_imm,
-                          uint32_t* Rd, uint32_t* Rm, uint32_t* Rn,
-                          uint32_t* U, uint32_t *load_store, uint32_t *B);
 int handle_ldrh_strh(arm_core p, uint32_t ins);
 int handle_immediate_post_indexed(arm_core p, uint32_t ins);
 int handle_register_post_indexed(arm_core p, uint32_t ins);
