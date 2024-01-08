@@ -47,7 +47,7 @@ int Arithmetic_shift_right_by_immediate(uint8_t shift_imm, uint32_t rm,uint32_t 
 }
 
 
-int Arithmetic_shift_right_by_register(uint32_t *shifter_operand,uint32_t rm,uint32_t rs,arm_core p){// Rs et Rm : sont les valeurs des registers
+int Arithmetic_shift_right_by_register(uint32_t *shifter_operand,uint32_t rm,uint32_t rs,arm_core p){
     if (get_bits(rs,7,0)==0){
         *shifter_operand=rm;
         return get_bit(arm_read_cpsr(p), 29); //return C flag
@@ -76,7 +76,7 @@ int Rotate_right_by_immediate(arm_core p,uint8_t shift_imm,uint32_t rm,uint32_t 
 }
 
 
-int rotate_right_by_register(uint32_t rs,uint32_t rm,uint32_t *shifter_operand,arm_core p){// Rs et Rm : sont les valeurs des registers
+int rotate_right_by_register(uint32_t rs,uint32_t rm,uint32_t *shifter_operand,arm_core p){
     int shifter_carry_out;
     //int c_flag= get_bit(arm_read_cpsr(p), 29);
     if (get_bits(rs,7,0)==0){
@@ -93,7 +93,7 @@ int rotate_right_by_register(uint32_t rs,uint32_t rm,uint32_t *shifter_operand,a
 }
 
 
-int rotate_right_with_extend(arm_core p,uint32_t rm,uint32_t *shifter_operand){// Rm : sont les valeurs des registers
+int rotate_right_with_extend(arm_core p,uint32_t rm,uint32_t *shifter_operand){
     int c_flag= get_bit(arm_read_cpsr(p), 29);
     *shifter_operand= logical_shift_left(c_flag , 31) | logical_shift_right(rm,1) ;
     int shifter_carry_out= get_bit(rm,0);
@@ -218,7 +218,7 @@ int carry(uint32_t ins, uint32_t *shifter_operand,arm_core p){
         uint32_t value_rm=arm_read_register(p,rm);//registre a decaler avant de executer l'instruction
         
         if(get_bit(ins,4)==1) {
-            //data processing register shift
+            //data processing register shift [2]
             rs= get_bits(ins,11,8);
             shift_amount = arm_read_register(p,rs); //registre pour savoir le decalage a faire
         }else {
@@ -226,7 +226,6 @@ int carry(uint32_t ins, uint32_t *shifter_operand,arm_core p){
             shift_amount = get_bits(ins, 11, 7);
         }
 
-        //Shift type
 
         if(get_bits(ins,6,4 )==0){
             c=logical_shift_left_by_immediate(p,shift_amount, value_rm, shifter_operand);
@@ -264,35 +263,14 @@ int carry(uint32_t ins, uint32_t *shifter_operand,arm_core p){
 void nzc_shifftercarry_update (arm_core p, uint32_t result, int  c){
     uint8_t N_flag = get_bit(result,31);
     uint8_t Z_flag = (result==0);
-    int C_flag = c;
-    //Positioning flags in order
+    int C_flag = c;// shifter_carry_out
     uint8_t Tout_flag = ((N_flag<<3)|(Z_flag<<2)|(C_flag<<1));
-    //Updating cpsr by pushing ordered flags to 28th position
     arm_write_cpsr(p,(arm_read_cpsr(p) & 0x1FFFFFFF)|(Tout_flag<<28));
 }
 
 
 static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c ){
     uint32_t result = op1 & shifted_op2;
-    // Ouvre un fichier en mode écriture
-    FILE *fichier = fopen("exemple.txt", "w");
-
-    // Vérifie si le fichier est correctement ouvert
-    if (fichier != NULL) {
-        // Écrit "Hello" dans le fichier
-        fprintf(fichier, "%u", result);
-        fprintf(fichier, "op1  %u", op1);
-        fprintf(fichier, "shifted_op2  %u", shifted_op2);
-
-
-
-        // Ferme le fichier après avoir terminé l'écriture
-        fclose(fichier);
-        printf("Contenu écrit dans le fichier avec succès.\n");
-    } else {
-        // En cas d'échec de l'ouverture du fichier
-        printf("Impossible d'ouvrir le fichier.\n");
-    }
     arm_write_register(p, rd, result);
     if ((set_cond==1 ) && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
@@ -327,25 +305,6 @@ static int eor(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 
 static int sub(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
     uint32_t result = op1 - shifted_op2;
-    // Ouvre un fichier en mode écriture
-    FILE *fichier = fopen("exemple.txt", "w");
-
-    // Vérifie si le fichier est correctement ouvert
-    if (fichier != NULL) {
-        // Écrit "Hello" dans le fichier
-        fprintf(fichier, "%u----op-->",op1);
-        fprintf(fichier, "%u-----sh->",shifted_op2);
-
-        fprintf(fichier, "%u----res-->",result);
-
-        // Ferme le fichier après avoir terminé l'écriture
-        fclose(fichier);
-        printf("Contenu écrit dans le fichier avec succès.\n");
-    } else {
-        // En cas d'échec de l'ouverture du fichier
-        printf("Impossible d'ouvrir le fichier.\n");
-    }
-
     arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
@@ -405,7 +364,7 @@ static int add(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 
 static int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uint8_t set_cond, int carry_in) {
     int retour_add_partiel = add(p, op_gauche, op_droite, rd, set_cond);
-    if ( retour_add_partiel == 0 ) {// Continue if partial calculus returns no annomalies
+    if ( retour_add_partiel == 0 ) {
         return add(p, arm_read_register(p, rd), carry_in, rd, set_cond);
     } else {
         return retour_add_partiel;
@@ -415,7 +374,7 @@ static int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uin
 
 static int sbc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
     int retour_sub_partiel = sub(p, op1, shifted_op2, rd, set_cond);
-    if ( retour_sub_partiel == 0 ) { // Continue if partial calculus returns no annomalies
+    if ( retour_sub_partiel == 0 ) {
         return sub(p, arm_read_register(p, rd), ~(carry_in), rd, set_cond);
     } else {
         return retour_sub_partiel;
@@ -425,7 +384,7 @@ static int sbc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 
 static int rsc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
     int retour_rsb_partiel = rsb(p, op1, shifted_op2, rd, set_cond);
-    if ( retour_rsb_partiel == 0 ) { // Continue if partial calculus returns no annomalies
+    if ( retour_rsb_partiel == 0 ) {
         return rsb(p, arm_read_register(p, rd), ~(carry_in), rd, set_cond);
     } else {
         return retour_rsb_partiel;
@@ -453,7 +412,7 @@ static int cmp(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
     int C_flag = (result > op1);
     nzc_shifftercarry_update (p, result, C_flag);
     uint8_t V_flag = get_bit(op1,31) && !get_bit(result,31);
-    arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28)); //V_flag update wich is not supported by the nzc_shifttercarry_update(...)
+    arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28));
 
     return 0;
 }
@@ -463,7 +422,7 @@ static int cmn(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
     uint32_t result = op1 + shifted_op2;
     int C_flag = result < op1;
     nzc_shifftercarry_update (p, result, C_flag);
-    uint8_t V_flag = !get_bit(op1,31) && get_bit(result,31); //V_flag update wich is not supported by the nzc_shifttercarry_update(...)
+    uint8_t V_flag = !get_bit(op1,31) && get_bit(result,31);
     arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28));
     
     return 0;
@@ -480,23 +439,22 @@ static int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
              return UNDEFINED_INSTRUCTION; 
         }
     } else if(set_cond==1){
-        nzc_shifftercarry_update (p, result, c); //flags update
+        nzc_shifftercarry_update (p, result, c);
     }
     return 0;
 }
 
-//Passing a value to dest register
+
 static int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
 
     arm_write_register(p, rd, shifted_op2);
-    //Check bit S -> set_cond
     if ((set_cond == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{
              return UNDEFINED_INSTRUCTION; 
         }
-    } else if(set_cond==1){ // flags update
+    } else if(set_cond==1){
         nzc_shifftercarry_update (p, shifted_op2, c);
     }
     return 0;
@@ -507,7 +465,6 @@ static int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_
 
     uint32_t result = op1 & ~(shifted_op2);
     arm_write_register(p, rd, result);
-    //Check bit S -> set cond
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
@@ -521,10 +478,9 @@ static int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_
     return 0;
 }
 
-//Moving a not(value) to a destination register :
+
 static int mvn(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
     uint32_t shifted_op = ~(shifted_op2);
-    //Passes the value received in paramter to rd 
     return mov( p, shifted_op , rd, set_cond,  c);
 }
 
@@ -544,12 +500,13 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     
     uint8_t code_op= get_bits(ins,24,21);//op code
     uint8_t set_cond = get_bit(ins,20);
-
-    //Passing c paramater to some function calls to ensure the C flag update after the shiftter 
-    //    operand since some others already got their own calculs for it
     switch (code_op){
         case 0:
+<<<<<<< HEAD
         return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
+=======
+            return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
+>>>>>>> 98f5ce693475e9dfe7d9fa57a4ff734440906984
         case 1:
             return eor(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
         case 2:
@@ -590,6 +547,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
+<<<<<<< HEAD
  
    uint8_t R =get_bit(ins,22);
    uint8_t I = get_bit(ins,25);
@@ -661,4 +619,26 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
         }
     }
     return DATA_ABORT;
+=======
+
+
+   /* uint32_t value = get_bits(ins, ...);  // Extraire la valeur à transférer
+    uint32_t field_mask = get_bits(ins,19,16);  // Extraire le masque de champ
+    uint8_t mode = get_bits(ins, ...);  // Extraire le mode de transfert (par exemple, CPSR ou SPSR)
+
+    // Effectuer la logique de transfert de statut
+    switch (mode) {
+        case CPSR:
+            // Mettre à jour les bits spécifiés dans CPSR
+            uint32_t current_cpsr = arm_read_cpsr(p);
+            current_cpsr = (current_cpsr & ~field_mask) | (value & field_mask);
+            arm_write_cpsr(p, current_cpsr);
+            break;
+        // Ajoutez d'autres cas si nécessaire pour traiter d'autres modes de transfert
+
+        default:
+            return UNDEFINED_INSTRUCTION;
+    }*/
+    return UNDEFINED_INSTRUCTION;
+>>>>>>> 98f5ce693475e9dfe7d9fa57a4ff734440906984
 }
