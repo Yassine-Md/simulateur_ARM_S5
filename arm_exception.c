@@ -61,3 +61,52 @@ int arm_exception(arm_core p, uint8_t exception) {
     }
     return exception;
 }
+
+
+
+//fetch abort 
+void fetch_abort(arm_core p){
+    // R14_abt= address of the aborted instruction + 4
+    uint32_t aborted_instruction_address = arm_read_register(p,15) - 4;
+    uint32_t value = aborted_instruction_address + 4 ; 
+    arm_write_register(p , 14 , value);
+    //SPSR_abt = CPSR
+    arm_write_spsr(p,arm_read_cpsr(p));
+    // Enter Abort mode CPSR[4:0] = 0b10111
+    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001f)) | 0b10111);
+    // Execute in ARM state CPSR[5]= 0
+    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
+    // CPSR[6] is unchanged 
+    //Disable normal interrupts CPSR[7] = 1 
+    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
+    //  Disable Imprecise Data Aborts (v6 only) CPSR[8] = 1
+    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
+    //  Endianness on exception entry CPSR[9] = CP15_reg1_EEbit
+    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
+
+    arm_write_register(p,15,0x0000000C);
+}
+
+
+//fast_interrupt
+void fast_interrupt_request(arm_core p){
+    // R14_fiq = address of next instruction to be executed + 4
+    uint32_t next_instruction_address = arm_read_register(p,15) 
+    uint32_t value = next_instruction_address + 4;
+    arm_write_register(p,14,value);
+    arm_write_spsr(p,arm_read_cpsr(p));
+    //  Enter FIQ mode CPSR[4:0] = 0b10001
+    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001f)) | 0b10001);
+    // Execute in ARM state CPSR[5]= 0
+    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
+    //Disable fast interrupts 
+    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),6));
+    //Disable normal interrupts CPSR[7] = 1 
+    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
+    //  Disable Imprecise Data Aborts (v6 only) CPSR[8] = 1
+    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
+    //  Endianness on exception entry CPSR[9] = CP15_reg1_EEbit
+    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
+
+    arm_write_register(p,15,0x0000001C);
+}
