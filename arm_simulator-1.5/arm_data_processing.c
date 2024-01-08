@@ -502,11 +502,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
     uint8_t set_cond = get_bit(ins,20);
     switch (code_op){
         case 0:
-<<<<<<< HEAD
-        return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
-=======
             return and(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
->>>>>>> 98f5ce693475e9dfe7d9fa57a4ff734440906984
         case 1:
             return eor(p,op_gauche,shifter_operand,n_r_res,set_cond,c);
         case 2:
@@ -547,7 +543,7 @@ int arm_data_processing_shift(arm_core p, uint32_t ins) {
 
 
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
-<<<<<<< HEAD
+
  
    uint8_t R =get_bit(ins,22);
    uint8_t I = get_bit(ins,25);
@@ -619,26 +615,5 @@ int arm_data_processing_immediate_msr(arm_core p, uint32_t ins) {
         }
     }
     return DATA_ABORT;
-=======
-
-
-   /* uint32_t value = get_bits(ins, ...);  // Extraire la valeur à transférer
-    uint32_t field_mask = get_bits(ins,19,16);  // Extraire le masque de champ
-    uint8_t mode = get_bits(ins, ...);  // Extraire le mode de transfert (par exemple, CPSR ou SPSR)
-
-    // Effectuer la logique de transfert de statut
-    switch (mode) {
-        case CPSR:
-            // Mettre à jour les bits spécifiés dans CPSR
-            uint32_t current_cpsr = arm_read_cpsr(p);
-            current_cpsr = (current_cpsr & ~field_mask) | (value & field_mask);
-            arm_write_cpsr(p, current_cpsr);
-            break;
-        // Ajoutez d'autres cas si nécessaire pour traiter d'autres modes de transfert
-
-        default:
-            return UNDEFINED_INSTRUCTION;
-    }*/
-    return UNDEFINED_INSTRUCTION;
->>>>>>> 98f5ce693475e9dfe7d9fa57a4ff734440906984
 }
+
