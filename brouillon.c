@@ -840,3 +840,6 @@ uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
 
     return UINT32_MAX; // en cas d'erreur
 }
+
+
+

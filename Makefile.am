@@ -27,10 +27,12 @@ COMMON=csapp.h csapp.c scanner.h scanner.l debug.h debug.c \
        arm_exception.h arm_exception.c \
        arm_instruction.h arm_instruction.c \
        arm_data_processing.h arm_data_processing.c \
+       arm_data_processing_functions.c arm_data_processing_functions.h \
        arm_load_store.h arm_load_store.c \
        arm_branch_other.h arm_branch_other.c \
-       load_store_addressing_operations.c \
-       load_store_memory_operations.c
+       load_store_addressing_operations.c load_store_addressing_operations.h \
+       load_store_memory_operations.c  load_store_memory_operations.h
+
 
 arm_simulator_SOURCES=$(COMMON) arm_simulator.c
 

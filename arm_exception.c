@@ -84,7 +84,7 @@ int arm_exception(arm_core p, uint8_t exception) {
     }
 
     if(exception == FAST_INTERRUPT){
-        fast_interrupt(p);
+        fast_interrupt_request(p);
     }
 
     // terminer le traitement de undefined instruction apres interruption
@@ -160,7 +160,7 @@ void fetch_abort(arm_core p){
 
 void fast_interrupt_request(arm_core p){
     // R14_fiq = address of next instruction to be executed + 4
-    uint32_t next_instruction_address = arm_read_register(p,15) 
+    uint32_t next_instruction_address = arm_read_register(p,15) ;
     uint32_t value = next_instruction_address + 4;
     arm_write_register(p,14,value);
     

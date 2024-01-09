@@ -107,8 +107,6 @@ void initialize_scaled_register_variables(arm_core p, uint32_t ins,
 }
 
 bool is_scaled_register_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
-    printf("bit 4 %d\n" , get_bit(ins,4));
     if((get_bits(ins,27,25) == 3) && (get_bit(ins,4)== 0)){
         return true;
     }
@@ -116,8 +114,6 @@ bool is_scaled_register_offset(uint32_t ins) {
 }
 
 bool is_register_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
-    printf("bit 11 4 %d\n" , get_bits(ins,11,4));
     if((get_bits(ins,27,25) == 3) && (get_bits(ins,11,4)== 0)){
         return true;
     }
@@ -125,7 +121,6 @@ bool is_register_offset(uint32_t ins) {
 }
 
 bool is_immediate_offset(uint32_t ins) {
-    printf("bit 27 25 %d\n" ,get_bits(ins,27,25));
     if(get_bits(ins,27,25) == 2){
         return true ;
     }
