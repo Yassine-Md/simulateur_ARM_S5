@@ -68,55 +68,26 @@ int arm_exception(arm_core p, uint8_t exception) {
    
 
     if(exception == DATA_ABORT){
-        //R14_abt = address of the aborted instruction + 8
-        arm_write_register(p,14,(arm_read_register(p,15) -4) + 8);
-        //SPSR_abt = CPSR
-        arm_write_spsr(p,arm_read_cpsr(p));
-        //CPSR[4:0] = 0b10111 Enter Abort mode 
-        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) | 0b10111);
-        //CPSR[5] = 0  Execute in ARM state 
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-        //CPSR[7] = 1  Disable normal interrupts 
-        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-        //CPSR[8] = 1  Disable Imprecise Data Aborts (v6 only) 
-        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-        arm_write_register(p, 15, 0);
+        data_abort(p);
     }
 
     if(exception == INTERRUPT){
-        //R14_abt = address of the aborted instruction + 8
-        arm_write_register(p,14,(arm_read_register(p,15) -4) + 4);
-        //SPSR_abt = CPSR
-        arm_write_spsr(p,arm_read_cpsr(p));
-        //CPSR[4:0] = 0b10111 Enter Abort mode 
-        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) | 0b10010);
-        //CPSR[5] = 0  Execute in ARM state 
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-        //CPSR[7] = 1  Disable normal interrupts 
-        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-        //CPSR[8] = 1  Disable Imprecise Data Aborts (v6 only) 
-        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-        arm_write_register(p, 15, 0x00000018);
+        unterrupt(p);
     }
 
     if(exception == UNDEFINED_INSTRUCTION){
-        //R14_abt = address of the aborted instruction + 8
-        arm_write_register(p,14,arm_read_register(p,15));
-        //SPSR_abt = CPSR
-        arm_write_spsr(p,arm_read_cpsr(p));
-        //CPSR[4:0] = 0b10111 Enter Abort mode 
-        arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) |  0b11011);
-        //CPSR[5] = 0  Execute in ARM state 
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-        //CPSR[7] = 1  Disable normal interrupts 
-        arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-
-        arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-        arm_write_register(p, 15, 0x00000004);
+        undefined_unstruction(p);
     }
 
+    if(exception == PREFETCH_ABORT){
+        fetch_abort(p);
+    }
+
+    if(exception == FAST_INTERRUPT){
+        fast_interrupt(p);
+    }
+
+    // terminer le traitement de undefined instruction apres interruption
 
 
      return exception;
@@ -153,7 +124,7 @@ void data_abort(arm_core p){
     arm_write_register(p,14,(arm_read_register(p,15) -4) + 8);
     //SPSR_abt = CPSR
     
-    set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 );
+    set_exception_cpsr(p , 0b10111, 0 );
     arm_write_register(p, 15, 0x00000010); 
 }
 
@@ -162,7 +133,7 @@ void unterrupt(arm_core p){
     arm_write_register(p,14,(arm_read_register(p,15) -4) + 4);
     //SPSR_irq = CPSR
     
-    set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 );
+    set_exception_cpsr( p, 0b10010 , 0 );
     arm_write_register(p, 15, 0x00000018);
 }
 
@@ -171,7 +142,7 @@ void undefined_unstruction(arm_core p){
     arm_write_register(p,14,arm_read_register(p,15));
     //SPSR_und  = CPSR
     
-    set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 );
+    set_exception_cpsr( p, 0b11011 , 0 );
     arm_write_register(p, 15, 0x00000004);
 }
 
@@ -183,7 +154,7 @@ void fetch_abort(arm_core p){
     arm_write_register(p , 14 , value);
     //SPSR_abt = CPSR
     
-    set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 );
+    set_exception_cpsr( p, 0b10111 , 0 );
     arm_write_register(p,15,0x0000000C);
 }
 
@@ -193,115 +164,7 @@ void fast_interrupt_request(arm_core p){
     uint32_t value = next_instruction_address + 4;
     arm_write_register(p,14,value);
     
-    set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 );
+    set_exception_cpsr( p, 0b10001 , 1 );
     arm_write_register(p,15,0x0000001C);
 }
 
-
-
-/*
-void data_abort(arm_core p){
-    //R14_abt = address of the aborted instruction + 8
-    arm_write_register(p,14,(arm_read_register(p,15) -4) + 8);
-    //SPSR_abt = CPSR
-    arm_write_spsr(p,arm_read_cpsr(p));
-    //CPSR[4:0] = 0b10111 Enter Abort mode 
-    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001F)) | 0b10111);
-    //CPSR[5] = 0  Execute in ARM state 
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-    //CPSR[7] = 1  Disable normal interrupts 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-    //CPSR[8] = 1 /* Disable Imprecise Data Aborts (v6 only) 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-    arm_write_register(p, 15, 0x00000010);
-}
-
-
-void unterrupt(arm_core p){
-    // R14_irq = address of next instruction to be executed + 4
-    arm_write_register(p,14,(arm_read_register(p,15) -4) + 4);
-    //SPSR_irq = CPSR
-    arm_write_spsr(p,arm_read_cpsr(p));
-    //CPSR[4:0] = 0b10010  Enter IRQ mode 
-    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000000F)) | 0b10010);
-    //CPSR[5] = 0  Execute in ARM state 
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-    //CPSR[6] is unchanged 
-    //CPSR[7] = 1  Disable normal interrupts 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-    //CPSR[8] = 1 /* Disable Imprecise Data Aborts (v6 only) 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-    //Endianness on exception entry
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-
-    arm_write_register(p, 15, 0x00000018);
-}
-
-
-void undefined_unstruction(arm_core p){
-    //R14_und = address of next instruction after the Undefined instruction
-    arm_write_register(p,14,arm_read_register(p,15));
-    //SPSR_und  = CPSR
-    arm_write_spsr(p,arm_read_cpsr(p));
-    //CPSR[4:0] = 0b11011  Enter Undefined Instruction mode
-    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001F)) |  0b11011);
-    //CPSR[5] = 0  Execute in ARM state 
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-    // CPSR[6] is unchanged 
-    //CPSR[7] = 1  Disable normal interrupts 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-    //CPSR[8] is unchanged 
-    // Endianness on exception entry
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-    
-    arm_write_register(p, 15, 0x00000004);
-}
-
-//fetch abort 
-void fetch_abort(arm_core p){
-    // R14_abt= address of the aborted instruction + 4
-    uint32_t aborted_instruction_address = arm_read_register(p,15) - 4;
-    uint32_t value = aborted_instruction_address + 4 ; 
-    arm_write_register(p , 14 , value);
-    //SPSR_abt = CPSR
-    arm_write_spsr(p,arm_read_cpsr(p));
-    // Enter Abort mode CPSR[4:0] = 0b10111
-    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001f)) | 0b10111);
-    // Execute in ARM state CPSR[5]= 0
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-    // CPSR[6] is unchanged 
-    //Disable normal interrupts CPSR[7] = 1 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-    //  Disable Imprecise Data Aborts (v6 only) CPSR[8] = 1
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-    //  Endianness on exception entry CPSR[9] = CP15_reg1_EEbit
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-
-    arm_write_register(p,15,0x0000000C);
-}
-
-
-//fast_interrupt
-void fast_interrupt_request(arm_core p){
-    // R14_fiq = address of next instruction to be executed + 4
-    uint32_t next_instruction_address = arm_read_register(p,15) 
-    uint32_t value = next_instruction_address + 4;
-    arm_write_register(p,14,value);
-    arm_write_spsr(p,arm_read_cpsr(p));
-    //  Enter FIQ mode CPSR[4:0] = 0b10001
-    arm_write_cpsr(p,(arm_read_cpsr(p) & ~(0x0000001f)) | 0b10001);
-    // Execute in ARM state CPSR[5]= 0
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),5));
-    //Disable fast interrupts 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),6));
-    //Disable normal interrupts CPSR[7] = 1 
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),7));
-    //  Disable Imprecise Data Aborts (v6 only) CPSR[8] = 1
-    arm_write_cpsr(p,set_bit(arm_read_cpsr(p),8));
-    //  Endianness on exception entry CPSR[9] = CP15_reg1_EEbit
-    arm_write_cpsr(p,clr_bit(arm_read_cpsr(p),9));
-
-    arm_write_register(p,15,0x0000001C);
-}
-*/
