@@ -24,7 +24,7 @@ int handle_memory_operation(arm_core p, uint32_t ins, uint32_t write_back) {
         offset = offset_12;
     } else {
         // Handle other offset types if needed in the future
-        return 1;  // Unsupported offset type
+        return -1;  // Unsupported offset type
     }
 
     uint32_t address = calculate_address(p, Rn, offset, U);
@@ -47,12 +47,20 @@ int process_memory_access(arm_core p, uint32_t address, int load_store, int B, u
     } else { // Load
         if (B == 0) { // Word
             uint32_t chargedValue_word;
-            arm_read_word(p, address, &chargedValue_word);
-            return arm_write_register(p, Rd, chargedValue_word);
+            if (arm_read_word(p, address, &chargedValue_word) == 0) {
+                arm_write_register(p, Rd, chargedValue_word);
+                return 0;
+            }else{
+                return -1;
+            }
         } else { // Byte
             uint8_t chargedValue_byte;
-            arm_read_byte(p, address, &chargedValue_byte);
-            return arm_write_register(p, Rd, chargedValue_byte);
+            if(arm_read_byte(p, address, &chargedValue_byte) == 0) { // return 0 si bien passer -1 sinon
+                arm_write_register(p, Rd, chargedValue_byte); // ne renvoie rien 
+                return 0 ;
+            }else {
+                return -1 ;
+            }
         }
     }
 }
@@ -61,12 +69,16 @@ int process_memory_access(arm_core p, uint32_t address, int load_store, int B, u
 int process_memory_access_half(arm_core p, uint32_t address, uint32_t load_store, uint32_t Rd) {
     uint16_t valueToWriteOrRead;
 
-    if (load_store == 0) { // store
+    if (load_store == 0) { // strB
         valueToWriteOrRead = (uint16_t)arm_read_register(p, Rd);
         return arm_write_half(p, address, valueToWriteOrRead);
-    } else { // ldr
-        arm_read_half(p, address, &valueToWriteOrRead);
-        return arm_write_register(p, Rd, valueToWriteOrRead);
+    } else { // ldrB
+        if(arm_read_half(p, address, &valueToWriteOrRead) == 0) { // ret 0 tout bien passer sinon -1
+            arm_write_register(p, Rd, valueToWriteOrRead);
+            return 0;
+        }else{
+            return -1;
+        }
     }
 }
 

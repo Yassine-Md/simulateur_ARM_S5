@@ -67,14 +67,14 @@ int determine_instruction_type(uint32_t ins) {
 
 }
 
-
+// return 0 sinon -1 en cas d'erreur 
 int handle_immediate_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store , uint32_t write_back) {
     uint32_t immedL = get_bits(ins, 3, 0);
     uint32_t immedH = get_bits(ins, 11, 8);
     uint32_t offset_8 = logical_shift_left(immedH, 4) | immedL;
     uint32_t address = calculate_address(p, Rn, offset_8, U);
     if (write_back){
-        arm_write_register(p, Rn, address);                            //handle_immediate_offset_ldrh_strh pour cette fonction il n'y a pas une ecreture de la nouvelle adresse calculer dans Rn
+        arm_write_register(p, Rn, address);                            
     }
     return process_memory_access_half(p, address, load_store, Rd);
 }

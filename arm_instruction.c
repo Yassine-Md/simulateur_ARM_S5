@@ -94,7 +94,7 @@ int ConditionPassed(arm_core p, uint32_t ins) {
 }
 
 
-
+// return 0 sinon erreur 
 static int arm_execute_instruction(arm_core p) {
     uint32_t value ; 
     int res = arm_fetch(p , &value);  // return 0 si tout est bien passer sinon 0
@@ -110,7 +110,10 @@ static int arm_execute_instruction(arm_core p) {
             switch(cat_inst){
                 case 0:
                     if (get_bits(value,27,20)==18){
-                        return arm_branch(p, value );
+                        return arm_branch(p, value );  //BX AND BLX
+                    }
+                    if(get_bits(value,7,4)==0b1011){
+                       arm_load_store(p,value);        // load store HALF
                     }
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:

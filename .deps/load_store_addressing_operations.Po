@@ -48,7 +48,10 @@ load_store_addressing_operations.o: load_store_addressing_operations.c \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h registers.h memory.h \
  trace_location.h trace.h arm_constants.h \
- load_store_addressing_operations.h util.h debug.h
+ load_store_addressing_operations.h util.h debug.h /usr/include/stdlib.h \
+ /usr/include/x86_64-linux-gnu/bits/waitflags.h \
+ /usr/include/x86_64-linux-gnu/bits/waitstatus.h /usr/include/alloca.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h
 /usr/include/stdc-predef.h:
 arm_exception.h:
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h:
@@ -111,3 +114,8 @@ arm_constants.h:
 load_store_addressing_operations.h:
 util.h:
 debug.h:
+/usr/include/stdlib.h:
+/usr/include/x86_64-linux-gnu/bits/waitflags.h:
+/usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+/usr/include/alloca.h:
+/usr/include/x86_64-linux-gnu/bits/stdlib-float.h:

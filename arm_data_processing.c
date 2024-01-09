@@ -218,7 +218,6 @@ static int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, in
     } else if(set_cond==1){
         nzc_shifftercarry_update (p, shifted_op2, c);
     }
-    printf("valeur de registre modifier2 %d\n", arm_read_register(p,rd));
     return 0;
 }
 

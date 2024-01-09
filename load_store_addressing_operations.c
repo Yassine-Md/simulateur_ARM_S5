@@ -4,6 +4,7 @@
 #include "load_store_addressing_operations.h"
 #include "util.h"
 #include "debug.h"
+#include <stdlib.h>
 
 
 uint32_t calculate_address(arm_core p, uint32_t Rn, uint32_t offset, uint32_t U) {
@@ -48,7 +49,8 @@ uint32_t calculate_address_scaled_register(arm_core p, uint32_t Rn, uint32_t Rm_
             break;
         default:
             // Handle undefined case
-            return 99;
+            printf("ERROR 'calculate_address_scaled_register' Undefined case \n");
+            exit(1);
     }
 
     return index;
