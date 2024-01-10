@@ -38,7 +38,6 @@ https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/
 // Define constants for instruction types
 #define LDR_STR_INSTRUCTION 1
 #define LDRH_STRH_INSTRUCTION 2
-#define LDM_STM_INSTRUCTION 3
 
 
 // return 0 si tout est bien passer sinon i#0
@@ -270,7 +269,6 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
                 address = address + 4;
             }
             }
-            assert(end_adr == address - 4);
     }
     else{
         //LDM
@@ -292,7 +290,7 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
             }
         
     }
-    return LDM_STM_INSTRUCTION;
+    return 0;
 }
 
 int arm_coprocessor_load_store(arm_core p, uint32_t ins) {
