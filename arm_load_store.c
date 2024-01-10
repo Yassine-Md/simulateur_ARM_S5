@@ -38,6 +38,7 @@ https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/
 // Define constants for instruction types
 #define LDR_STR_INSTRUCTION 1
 #define LDRH_STRH_INSTRUCTION 2
+#define LDM_STM_INSTRUCTION 3
 
 
 // return 0 si tout est bien passer sinon i#0
@@ -208,6 +209,43 @@ int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t 
 }
 
 
+void start_end_adresse(arm_core p,uint32_t ins,int P,int U,uint32_t Rn,uint32_t* start_adr,uint32_t* end_adr,uint32_t reg_list,uint8_t w){
+    int nb_un=count_set_bits(reg_list);
+    uint32_t val_Rn = arm_read_register(p, Rn);
+    if ((P == 0) && (U == 1))
+    {
+        *start_adr=val_Rn;
+        *end_adr=(Rn + (nb_un * 4))-4;
+        if (w==1){
+            Rn=Rn + (nb_un * 4);
+        }
+
+    }
+    else if((P==1) && (U==1)){
+        *start_adr=val_Rn + 4;
+        *end_adr = val_Rn + (nb_un * 4);
+        if (w==1){
+            val_Rn=val_Rn + (nb_un * 4);
+        }
+    }
+    else if ((P==0) && (U==0)){
+        *start_adr= val_Rn - (nb_un *4)+4;
+        *end_adr =val_Rn;
+        if (w==1){
+            val_Rn=val_Rn - (nb_un * 4);
+        }
+    }
+    else{
+        *start_adr= val_Rn - (nb_un *4);
+        *end_adr =val_Rn - 4;
+        if (w==1){
+            val_Rn=val_Rn - (nb_un * 4);
+        } 
+    }
+    arm_write_register(p,Rn,val_Rn);
+}
+
+
 //pour le load/store normal on va utiliser les commande LDM et STM */
 int arm_load_store_multiple(arm_core p, uint32_t ins) {
     //uint8_t cond = get_bits(ins,31,28);
@@ -215,65 +253,46 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
     // 2:mode pre_increment(adresses sont décrémentées avant le transfert)
     uint8_t U = get_bit(ins,23);//bit U spécifie la direction de l'incrémentation/decrémentation des adresses. S'il est à 1, les adresses sont 
     //incrémentées. S'il est à 0, les adresses sont décrémentées.
-    //uint8_t W = get_bit(ins,21);//si W==1 le registre Rn sera mis a jour 0 si il reste inchagé
+    uint8_t W = get_bit(ins,21);//si W==1 le registre Rn sera mis a jour 0 si il reste inchagé
     //bit 22 il doit etre 0 
     uint8_t Rn = get_bits(ins,19,16);
     uint16_t reg_list=get_bits(ins,15,0);
+    uint32_t start_adr,end_adr;
+    start_end_adresse(p,ins,P,U,Rn,&start_adr,&end_adr,reg_list,W);
     if (get_bit(ins, 20 )==0){
         //STM
-        uint32_t address=arm_read_register(p,(int) Rn);
+        uint32_t address = start_adr;
+        uint32_t value;
         for (int i=0;i<15;i++){
             if (get_bit(reg_list,i)==1){
-                if (P==1){
-                    if (U==1){
-                        address=address+4;
-                    }
-                    else{
-                    address=address-4;
-                    }
-                }
-                uint32_t val = arm_read_register(p,i);
-                arm_write_word(p,address,val);
-                if(P==0){ 
-                    if (U==1){
-                        address=address+4;
-                    }
-                    else{
-                        address=address-4;
-                    }
-                }
+                arm_read_word(p,address,&value);
+                arm_write_register(p,i,value);
+                address = address + 4;
             }
-        }
-
+            }
+            assert(end_adr == address - 4);
     }
     else{
         //LDM
-        uint32_t address=arm_read_register(p,(int) Rn);
+        uint32_t address = start_adr;
+        uint32_t value;
         for (int i=0 ;i<15;i++){
             if (get_bit(reg_list,i)==1){
-                if (P==1){
-                    if (U==1){
-                        address=address+4;
-                    }
-                    else{
-                    address=address-4;
-                    }
-                }
-                uint32_t value;
                 arm_read_word(p,address,&value);
                 arm_write_register(p,i,value);
-                if(P==0){ 
-                    if (U==1){
-                        address=address+4;
-                    }
-                    else{
-                        address=address-4;
-                    }
-                }
+                address = address + 4;
             }
-        }
+            }
+        if (get_bit(reg_list,15)==1){
+            arm_read_word(p,address,&value);
+            value=value & 0xFFFFFFFE;
+            arm_write_register(p,15,value);
+            address=address+4;
+            assert(end_adr==address-4);
+            }
+        
     }
-    return DATA_ABORT;
+    return LDM_STM_INSTRUCTION;
 }
 
 int arm_coprocessor_load_store(arm_core p, uint32_t ins) {
