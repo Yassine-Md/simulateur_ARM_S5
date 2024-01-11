@@ -95,5 +95,5 @@ int arm_miscellaneous(arm_core p, uint32_t ins) {
             return UNDEFINED_INSTRUCTION;
         }
     }
-    return UNDEFINED_INSTRUCTION;
+    return 0;
 }
