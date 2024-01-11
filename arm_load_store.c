@@ -269,8 +269,8 @@ int arm_load_store_multiple(arm_core p, uint32_t ins) {
         uint32_t value;
         for (int i=0;i<15;i++){
             if (get_bit(reg_list,i)==1){
-                arm_read_word(p,address,&value);
-                arm_write_register(p,i,value);
+                value = arm_read_register(p,i);
+                arm_write_word(p,address,value);
                 address = address + 4;
             }
             }

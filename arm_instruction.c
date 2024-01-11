@@ -129,6 +129,8 @@ static int arm_execute_instruction(arm_core p) {
                     if ((bit_24_23 == 2)&& (bit_21_20 == 0)){
                         // Undifined instruction
                         return UNDEFINED_INSTRUCTION ;
+                    }else if (bit_21_20 == 2 && bit_24_23 == 2){
+                        return arm_data_processing_immediate_msr(p,value);
                     }else{
                         //move immediate to status register  (mettre à jour le registre d'état avec une valeur immédiate)
                         //data prcessing immediate (effectuer des opérations arithmétiques ou logiques sur des données immédiates)

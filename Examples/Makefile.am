@@ -15,7 +15,7 @@ AM_LDFLAGS=-nostdlib -T $(srcdir)/linker_script -n --entry main
 AM_LDFLAGS+=-Wl,-EB
 
 if HAVE_ARM_COMPILER
-noinst_PROGRAMS=example1 example2 example3 example4 insertion_sort ldr_str_classic ldrh_strh_classic ldrh_strh_2 ldr_str_2 ldrh_strh_ex ldr_str_3
+noinst_PROGRAMS=example1 example2 example3 example4 insertion_sort ldr_str_classic ldrh_strh_classic ldrh_strh_2 ldr_str_2 ldrh_strh_ex ldr_str_3 ldm stm b bx bl blx
 
 all-am: $(PROGS)
 endif
@@ -30,7 +30,12 @@ ldrh_strh_2_SOURCES=ldrh_strh_2.s
 ldr_str_2_SOURCES=ldr_str_2.s
 ldrh_strh_ex_SOURCES=ldrh_strh_ex.s
 ldr_str_3_SOURCES=ldr_str_3.s
-
+ldm_SOURCES=ldm.s
+stm_SOURCES=stm.s
+b_SOURCES=b.s
+bx_SOURCES=bx.s
+bl_SOURCES=bl.s
+blx_SOURCES=blx.s
 
 
 insertion_sort_SOURCES=insertion_sort.c my_syscalls.s my_syscalls.h

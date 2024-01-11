@@ -89,7 +89,8 @@ POST_UNINSTALL = :
 build_triplet = x86_64-pc-linux-gnu
 host_triplet = x86_64-pc-linux-gnu
 bin_PROGRAMS = arm_simulator$(EXEEXT) send_irq$(EXEEXT) \
-	memory_test$(EXEEXT) registers_test$(EXEEXT)
+	memory_test$(EXEEXT) registers_test$(EXEEXT) \
+	arm_data_processing_test$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -115,6 +116,12 @@ am__objects_1 = csapp.$(OBJEXT) scanner.$(OBJEXT) debug.$(OBJEXT) \
 	arm_load_store.$(OBJEXT) arm_branch_other.$(OBJEXT) \
 	load_store_addressing_operations.$(OBJEXT) \
 	load_store_memory_operations.$(OBJEXT)
+am_arm_data_processing_test_OBJECTS =  \
+	arm_data_processing_test.$(OBJEXT) $(am__objects_1)
+arm_data_processing_test_OBJECTS =  \
+	$(am_arm_data_processing_test_OBJECTS)
+arm_data_processing_test_LDADD = $(LDADD)
+arm_data_processing_test_DEPENDENCIES =
 am_arm_simulator_OBJECTS = $(am__objects_1) arm_simulator.$(OBJEXT)
 arm_simulator_OBJECTS = $(am_arm_simulator_OBJECTS)
 arm_simulator_LDADD = $(LDADD)
@@ -153,6 +160,7 @@ am__depfiles_remade = ./$(DEPDIR)/arm.Po \
 	./$(DEPDIR)/arm_branch_other.Po ./$(DEPDIR)/arm_constants.Po \
 	./$(DEPDIR)/arm_core.Po ./$(DEPDIR)/arm_data_processing.Po \
 	./$(DEPDIR)/arm_data_processing_functions.Po \
+	./$(DEPDIR)/arm_data_processing_test.Po \
 	./$(DEPDIR)/arm_exception.Po ./$(DEPDIR)/arm_instruction.Po \
 	./$(DEPDIR)/arm_load_store.Po ./$(DEPDIR)/arm_simulator.Po \
 	./$(DEPDIR)/csapp.Po ./$(DEPDIR)/debug.Po \
@@ -182,9 +190,11 @@ am__v_LEX_ = $(am__v_LEX_$(AM_DEFAULT_VERBOSITY))
 am__v_LEX_0 = @echo "  LEX     " $@;
 am__v_LEX_1 = 
 YLWRAP = $(top_srcdir)/build-aux/ylwrap
-SOURCES = $(arm_simulator_SOURCES) $(memory_test_SOURCES) \
-	$(registers_test_SOURCES) $(send_irq_SOURCES)
-DIST_SOURCES = $(arm_simulator_SOURCES) $(memory_test_SOURCES) \
+SOURCES = $(arm_data_processing_test_SOURCES) $(arm_simulator_SOURCES) \
+	$(memory_test_SOURCES) $(registers_test_SOURCES) \
+	$(send_irq_SOURCES)
+DIST_SOURCES = $(arm_data_processing_test_SOURCES) \
+	$(arm_simulator_SOURCES) $(memory_test_SOURCES) \
 	$(registers_test_SOURCES) $(send_irq_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -413,6 +423,7 @@ COMMON = csapp.h csapp.c scanner.h scanner.l debug.h debug.c \
 
 arm_simulator_SOURCES = $(COMMON) arm_simulator.c
 send_irq_SOURCES = send_irq.c csapp.h csapp.c arm_constants.h arm_constants.c
+arm_data_processing_test_SOURCES = arm_data_processing_test.c $(COMMON)
 memory_test_SOURCES = memory_test.c memory.h memory.c util.h util.c
 registers_test_SOURCES = registers_test.c registers.h registers.c util.h util.c arm_constants.h arm_constants.c
 EXTRA_DIST = gdb_commands make_trace.sh License
@@ -512,6 +523,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+arm_data_processing_test$(EXEEXT): $(arm_data_processing_test_OBJECTS) $(arm_data_processing_test_DEPENDENCIES) $(EXTRA_arm_data_processing_test_DEPENDENCIES) 
+	@rm -f arm_data_processing_test$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(arm_data_processing_test_OBJECTS) $(arm_data_processing_test_LDADD) $(LIBS)
+
 arm_simulator$(EXEEXT): $(arm_simulator_OBJECTS) $(arm_simulator_DEPENDENCIES) $(EXTRA_arm_simulator_DEPENDENCIES) 
 	@rm -f arm_simulator$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(arm_simulator_OBJECTS) $(arm_simulator_LDADD) $(LIBS)
@@ -540,6 +555,7 @@ include ./$(DEPDIR)/arm_constants.Po # am--include-marker
 include ./$(DEPDIR)/arm_core.Po # am--include-marker
 include ./$(DEPDIR)/arm_data_processing.Po # am--include-marker
 include ./$(DEPDIR)/arm_data_processing_functions.Po # am--include-marker
+include ./$(DEPDIR)/arm_data_processing_test.Po # am--include-marker
 include ./$(DEPDIR)/arm_exception.Po # am--include-marker
 include ./$(DEPDIR)/arm_instruction.Po # am--include-marker
 include ./$(DEPDIR)/arm_load_store.Po # am--include-marker
@@ -934,6 +950,7 @@ distclean: distclean-recursive
 	-rm -f ./$(DEPDIR)/arm_core.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing_functions.Po
+	-rm -f ./$(DEPDIR)/arm_data_processing_test.Po
 	-rm -f ./$(DEPDIR)/arm_exception.Po
 	-rm -f ./$(DEPDIR)/arm_instruction.Po
 	-rm -f ./$(DEPDIR)/arm_load_store.Po
@@ -1004,6 +1021,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f ./$(DEPDIR)/arm_core.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing_functions.Po
+	-rm -f ./$(DEPDIR)/arm_data_processing_test.Po
 	-rm -f ./$(DEPDIR)/arm_exception.Po
 	-rm -f ./$(DEPDIR)/arm_instruction.Po
 	-rm -f ./$(DEPDIR)/arm_load_store.Po

@@ -15,11 +15,7 @@ if HAVE_ARM_COMPILER
 SUBDIRS=. Examples
 endif
 
-<<<<<<< HEAD
-bin_PROGRAMS=arm_simulator send_irq memory_test registers_test 
-=======
 bin_PROGRAMS=arm_simulator send_irq memory_test registers_test arm_data_processing_test
->>>>>>> 3c3bc94591156a3857a04a0930dd55497a33577c
 
 COMMON=csapp.h csapp.c scanner.h scanner.l debug.h debug.c \
        gdb_protocol.h gdb_protocol.c util.h util.c trace.h trace.c \
