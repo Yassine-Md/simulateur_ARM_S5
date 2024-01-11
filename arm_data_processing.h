@@ -27,5 +27,23 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_data_processing_shift(arm_core p, uint32_t ins);
 int arm_data_processing_immediate_msr(arm_core p, uint32_t ins);
+int rotate_right_with_extend(arm_core p,uint32_t rm,uint32_t *shifter_operand);
+int add(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond );
+int sub(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond );
+int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c );
+int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c );
+int eor(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c );
+int rsb(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond);
+int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uint8_t set_cond, int carry_in);
+int sbc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in );
+int rsc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in );
+int tst(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd, int c );
+int teq(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,int c );
+int cmp(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd);
+int cmn(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd);
+int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c);
+int mvn(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c);
+int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond);
+
 
 #endif

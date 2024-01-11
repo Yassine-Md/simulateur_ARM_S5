@@ -31,17 +31,17 @@ Contact: Guillaume.Huard@imag.fr
 #include "arm_data_processing_functions.h"
 
 
-static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c ){
+int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond,int  c ){
     uint32_t result = op1 & shifted_op2;
     arm_write_register(p, rd, result);
-    if ((set_cond == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
+    if ((set_cond==1 ) && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{
              return UNDEFINED_INSTRUCTION; 
         }
     } else if(set_cond==1){
-        nzc_shifftercarry_update(p, result, c);
+        nzc_shifftercarry_update (p, result, c);
     }
 
     return 0;
@@ -49,7 +49,7 @@ static int and(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int eor(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c ){
+int eor(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c ){
     uint32_t result = op1 ^ shifted_op2;
     arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
@@ -65,7 +65,7 @@ static int eor(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int sub(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
+int sub(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
     uint32_t result = op1 - shifted_op2;
     arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
@@ -85,9 +85,9 @@ static int sub(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int rsb(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond){
+int rsb(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond){
     uint32_t result = shifted_op2 - op1;
-    arm_write_register(p, rd, shifted_op2);
+    arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
@@ -105,7 +105,7 @@ static int rsb(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int add(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
+ int add(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond ){
     uint32_t result = op1 + shifted_op2;
     arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
@@ -124,7 +124,7 @@ static int add(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uint8_t set_cond, int carry_in) {
+int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uint8_t set_cond, int carry_in) {
     int retour_add_partiel = add(p, op_gauche, op_droite, rd, set_cond);
     if ( retour_add_partiel == 0 ) {
         return add(p, arm_read_register(p, rd), carry_in, rd, set_cond);
@@ -134,53 +134,70 @@ static int adc(arm_core p, uint32_t op_gauche, uint32_t op_droite,uint8_t rd,uin
 }
 
 
-static int sbc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
-    int retour_sub_partiel = sub(p, op1, shifted_op2, rd, set_cond);
-    if ( retour_sub_partiel == 0 ) {
-        return sub(p, arm_read_register(p, rd), ~(carry_in), rd, set_cond);
-    } else {
-        return retour_sub_partiel;
+int sbc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
+    uint32_t result = op1 - shifted_op2 - !(carry_in);
+    arm_write_register(p, rd, result);
+    if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))) {
+        if (arm_current_mode_has_spsr(p)){
+            arm_write_cpsr(p,arm_read_spsr(p));
+        }else{
+            return UNDEFINED_INSTRUCTION;
+        }
+    }else if(set_cond==1){
+        uint8_t C_flag = result > op1;
+        nzc_shifftercarry_update (p, result, C_flag);
+        uint8_t V_flag = get_bit(op1,31) && !get_bit(result,31);
+        arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28));
     }
+    return 0;
 }
 
 
-static int rsc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
-    int retour_rsb_partiel = rsb(p, op1, shifted_op2, rd, set_cond);
-    if ( retour_rsb_partiel == 0 ) {
-        return rsb(p, arm_read_register(p, rd), ~(carry_in), rd, set_cond);
-    } else {
-        return retour_rsb_partiel;
+int rsc(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int carry_in ){
+    uint32_t result = shifted_op2 - op1 - !(carry_in);
+    arm_write_register(p, rd, result);
+    if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))) {
+        if (arm_current_mode_has_spsr(p)){
+            arm_write_cpsr(p,arm_read_spsr(p));
+        }else{
+            return UNDEFINED_INSTRUCTION;
+        }
+    }else if(set_cond==1){
+        uint8_t C_flag = result > op1;
+        nzc_shifftercarry_update (p, result, C_flag);
+        uint8_t V_flag = get_bit(op1,31) && !get_bit(result,31);
+        arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28));
     }
+    return 0;
 }
 
 
 // I bit 25 à revoir!!!
-static int tst(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd, int c ){
+int tst(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd, int c ){
     uint32_t result = op1 & shifted_op2;
     nzc_shifftercarry_update (p, result, c);
     return 0;
 }
 
 
-static int teq(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,int c ){
-    uint32_t result = op1 ^ shifted_op2;
+int teq(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,int c ){
+    uint32_t result = eor(p,op1,shifted_op2,rd,1,c);
     nzc_shifftercarry_update (p, result, c);
     return 0;
 }
 
 
-static int cmp(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
+int cmp(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
     uint32_t result = op1 - shifted_op2;
     int C_flag = (result > op1);
     nzc_shifftercarry_update (p, result, C_flag);
     uint8_t V_flag = get_bit(op1,31) && !get_bit(result,31);
     arm_write_cpsr(p,(arm_read_cpsr(p) & 0xEFFFFFFF)|(V_flag<<28));
-
     return 0;
 }
 
 
-static int cmn(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
+int cmn(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
     uint32_t result = op1 + shifted_op2;
     int C_flag = result < op1;
     nzc_shifftercarry_update (p, result, C_flag);
@@ -191,7 +208,7 @@ static int cmn(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd){
 }
 
 
-static int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c ){
+int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t set_cond, int c ){
     uint32_t result = op1 | shifted_op2;
     arm_write_register(p, rd, result);
     if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
@@ -207,9 +224,10 @@ static int orr(arm_core p, uint32_t op1, uint32_t shifted_op2,uint8_t rd,uint8_t
 }
 
 
-static int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
+    int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
+
     arm_write_register(p, rd, shifted_op2);
-    if (set_cond == 1 && (arm_read_register(p,rd) == arm_read_register(p,15))){
+    if ((set_cond == 1) && (arm_read_register(p,rd) == arm_read_register(p,15))){
         if (arm_current_mode_has_spsr(p)){
             arm_write_cpsr(p,arm_read_spsr(p));
         }else{
@@ -222,7 +240,7 @@ static int mov(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, in
 }
 
 
-static int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond){
+int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond){
 
     uint32_t result = op1 & ~(shifted_op2);
     arm_write_register(p, rd, result);
@@ -240,7 +258,7 @@ static int bic(arm_core p, uint32_t op1, uint32_t shifted_op2 ,uint8_t rd,uint8_
 }
 
 
-static int mvn(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
+ int mvn(arm_core p, uint32_t shifted_op2 ,uint8_t rd,uint8_t set_cond, int c){
     uint32_t shifted_op = ~(shifted_op2);
     return mov( p, shifted_op , rd, set_cond,  c);
 }
