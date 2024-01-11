@@ -27,7 +27,7 @@ Contact: Guillaume.Huard@imag.fr
 #include "util.h"
 #include "debug.h"
 #include "load_store_memory_operations.h"
-
+#include <assert.h>
 
 
 /* A voir pour ajouter des conditions de verification
@@ -206,7 +206,14 @@ int handle_immediate_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t
 int handle_register_post_indexed_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store){
     return handle_register_common_ldrh_strh(p, ins, Rd, Rn, U, load_store, 1);
 }
-
+int count_set_bits(uint32_t reg_list) {
+    int count = 0;
+    while (reg_list) {
+        count += reg_list & 1;
+        reg_list >>= 1;
+    }
+    return count;
+}
 
 void start_end_adresse(arm_core p,uint32_t ins,int P,int U,uint32_t Rn,uint32_t* start_adr,uint32_t* end_adr,uint32_t reg_list,uint8_t w){
     int nb_un=count_set_bits(reg_list);
