@@ -30,6 +30,8 @@ Contact: Guillaume.Huard@imag.fr
 #include "gdb_protocol.h"
 #include "trace.h"
 #include "debug.h"
+#include "arm_core.h"
+#include "registers.h"
 
 struct shared_data {
     registers reg;
@@ -130,6 +132,7 @@ void usage(char *name) {
 }
 
 int main(int argc, char *argv[]) {
+
     struct shared_data shared;
     pthread_t gdb_thread;
     pthread_t irq_thread;

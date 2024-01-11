@@ -113,7 +113,7 @@ static int arm_execute_instruction(arm_core p) {
                         return arm_branch(p, value );  //BX AND BLX
                     }
                     if(get_bits(value,7,4)==0b1011){
-                       arm_load_store(p,value);        // load store HALF
+                       return arm_load_store(p,value);        // load store HALF
                     }
                     if(bit_24_23 == 2 && bit_20 == 0){
                         // Miscellaneous instructions:

@@ -91,7 +91,10 @@ void initialize_common_variables(arm_core p, uint32_t ins,
     *Rn = get_bits(ins, 19, 16);
     *U = get_bit(ins, 23);
     *load_store = get_bit(ins, 20);
-    *B = get_bit(ins, 22);
+    if (B != NULL){
+        *B = get_bit(ins, 22);
+    }
+    
 }
 
 

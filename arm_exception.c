@@ -96,7 +96,6 @@ int arm_exception(arm_core p, uint8_t exception) {
 }
 
 
-// function to set the CPSR bits for exception handling
 void set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 ) {
     // SPSR_mode = CPSR    sauvgarder CPSR dans SPSR du mode correspondant 
     arm_write_spsr(p,arm_read_cpsr(p));

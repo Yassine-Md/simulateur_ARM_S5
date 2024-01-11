@@ -1,17 +1,14 @@
 .global main
-.section .data
-
-
-
 .text
-main:      
-    mov r0, #0x12
-    mov r1, #0x2000
-    str r0, [r1]
-    ldr r2, [r1]
+decr:
+    subs r0, r0, #1
+    mov pc, lr
 
+main:
+    mov r0, #5
+loop:
+    bl decr
+    bne loop
+end:
+    swi 0x123456
 .data
-a : .word 0x4
-b : .word 0x4
-c : .word 0x4
-data_value: .word 0x30

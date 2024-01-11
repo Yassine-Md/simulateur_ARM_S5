@@ -40,7 +40,6 @@ https://developer.arm.com/documentation/dui0552/a/the-cortex-m3-instruction-set/
 #define LDRH_STRH_INSTRUCTION 2
 
 
-// return 0 si tout est bien passer sinon i#0
 int arm_load_store(arm_core p, uint32_t ins) {
     int instruction_type = determine_instruction_type(ins);
 
@@ -62,12 +61,11 @@ int determine_instruction_type(uint32_t ins) {
     if(type == 0){
         return LDRH_STRH_INSTRUCTION ;
     }else{
-        return  UNDEFINED_INSTRUCTION ;//ERROR ;
+        return  UNDEFINED_INSTRUCTION ;
     }
 
 }
 
-// return 0 sinon -1 en cas d'erreur 
 int handle_immediate_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store , uint32_t write_back) {
     uint32_t immedL = get_bits(ins, 3, 0);
     uint32_t immedH = get_bits(ins, 11, 8);

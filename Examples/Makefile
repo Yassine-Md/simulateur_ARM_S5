@@ -91,7 +91,13 @@ host_triplet = x86_64-pc-linux-gnu
 noinst_PROGRAMS = example1$(EXEEXT) \
 	example2$(EXEEXT) example3$(EXEEXT) \
 	example4$(EXEEXT) \
-	insertion_sort$(EXEEXT)
+	insertion_sort$(EXEEXT) \
+	ldr_str_classic$(EXEEXT) \
+	ldrh_strh_classic$(EXEEXT) \
+	ldrh_strh_2$(EXEEXT) \
+	ldr_str_2$(EXEEXT) \
+	ldrh_strh_ex$(EXEEXT) \
+	ldr_str_3$(EXEEXT)
 subdir = Examples
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -119,6 +125,24 @@ am_insertion_sort_OBJECTS = insertion_sort.$(OBJEXT) \
 	my_syscalls.$(OBJEXT)
 insertion_sort_OBJECTS = $(am_insertion_sort_OBJECTS)
 insertion_sort_LDADD = $(LDADD)
+am_ldr_str_2_OBJECTS = ldr_str_2.$(OBJEXT)
+ldr_str_2_OBJECTS = $(am_ldr_str_2_OBJECTS)
+ldr_str_2_LDADD = $(LDADD)
+am_ldr_str_3_OBJECTS = ldr_str_3.$(OBJEXT)
+ldr_str_3_OBJECTS = $(am_ldr_str_3_OBJECTS)
+ldr_str_3_LDADD = $(LDADD)
+am_ldr_str_classic_OBJECTS = ldr_str_classic.$(OBJEXT)
+ldr_str_classic_OBJECTS = $(am_ldr_str_classic_OBJECTS)
+ldr_str_classic_LDADD = $(LDADD)
+am_ldrh_strh_2_OBJECTS = ldrh_strh_2.$(OBJEXT)
+ldrh_strh_2_OBJECTS = $(am_ldrh_strh_2_OBJECTS)
+ldrh_strh_2_LDADD = $(LDADD)
+am_ldrh_strh_classic_OBJECTS = ldrh_strh_classic.$(OBJEXT)
+ldrh_strh_classic_OBJECTS = $(am_ldrh_strh_classic_OBJECTS)
+ldrh_strh_classic_LDADD = $(LDADD)
+am_ldrh_strh_ex_OBJECTS = ldrh_strh_ex.$(OBJEXT)
+ldrh_strh_ex_OBJECTS = $(am_ldrh_strh_ex_OBJECTS)
+ldrh_strh_ex_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -154,10 +178,16 @@ am__v_CCAS_ = $(am__v_CCAS_$(AM_DEFAULT_VERBOSITY))
 am__v_CCAS_0 = @echo "  CCAS    " $@;
 am__v_CCAS_1 = 
 SOURCES = $(example1_SOURCES) $(example2_SOURCES) $(example3_SOURCES) \
-	$(example4_SOURCES) $(insertion_sort_SOURCES)
+	$(example4_SOURCES) $(insertion_sort_SOURCES) \
+	$(ldr_str_2_SOURCES) $(ldr_str_3_SOURCES) \
+	$(ldr_str_classic_SOURCES) $(ldrh_strh_2_SOURCES) \
+	$(ldrh_strh_classic_SOURCES) $(ldrh_strh_ex_SOURCES)
 DIST_SOURCES = $(example1_SOURCES) $(example2_SOURCES) \
 	$(example3_SOURCES) $(example4_SOURCES) \
-	$(insertion_sort_SOURCES)
+	$(insertion_sort_SOURCES) $(ldr_str_2_SOURCES) \
+	$(ldr_str_3_SOURCES) $(ldr_str_classic_SOURCES) \
+	$(ldrh_strh_2_SOURCES) $(ldrh_strh_classic_SOURCES) \
+	$(ldrh_strh_ex_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -193,9 +223,9 @@ AWK = mawk
 CC = $(GCC_CROSS)
 CCAS = $(GCC_CROSS)
 CCASDEPMODE = depmode=gcc3
-CCASFLAGS = -Wall -Werror -g --debug
+CCASFLAGS = -Wall -Werror -g
 CCDEPMODE = depmode=gcc3
-CFLAGS = -Wall -Werror -g --debug
+CFLAGS = -Wall -Werror -g
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
@@ -305,6 +335,12 @@ example1_SOURCES = example1.s
 example2_SOURCES = example2.s
 example3_SOURCES = example3.s
 example4_SOURCES = example4.s
+ldr_str_classic_SOURCES = ldr_str_classic.s
+ldrh_strh_classic_SOURCES = ldrh_strh_classic.s
+ldrh_strh_2_SOURCES = ldrh_strh_2.s
+ldr_str_2_SOURCES = ldr_str_2.s
+ldrh_strh_ex_SOURCES = ldrh_strh_ex.s
+ldr_str_3_SOURCES = ldr_str_3.s
 insertion_sort_SOURCES = insertion_sort.c my_syscalls.s my_syscalls.h
 EXTRA_DIST = linker_script
 all: all-am
@@ -363,6 +399,30 @@ example4$(EXEEXT): $(example4_OBJECTS) $(example4_DEPENDENCIES) $(EXTRA_example4
 insertion_sort$(EXEEXT): $(insertion_sort_OBJECTS) $(insertion_sort_DEPENDENCIES) $(EXTRA_insertion_sort_DEPENDENCIES) 
 	@rm -f insertion_sort$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(insertion_sort_OBJECTS) $(insertion_sort_LDADD) $(LIBS)
+
+ldr_str_2$(EXEEXT): $(ldr_str_2_OBJECTS) $(ldr_str_2_DEPENDENCIES) $(EXTRA_ldr_str_2_DEPENDENCIES) 
+	@rm -f ldr_str_2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldr_str_2_OBJECTS) $(ldr_str_2_LDADD) $(LIBS)
+
+ldr_str_3$(EXEEXT): $(ldr_str_3_OBJECTS) $(ldr_str_3_DEPENDENCIES) $(EXTRA_ldr_str_3_DEPENDENCIES) 
+	@rm -f ldr_str_3$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldr_str_3_OBJECTS) $(ldr_str_3_LDADD) $(LIBS)
+
+ldr_str_classic$(EXEEXT): $(ldr_str_classic_OBJECTS) $(ldr_str_classic_DEPENDENCIES) $(EXTRA_ldr_str_classic_DEPENDENCIES) 
+	@rm -f ldr_str_classic$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldr_str_classic_OBJECTS) $(ldr_str_classic_LDADD) $(LIBS)
+
+ldrh_strh_2$(EXEEXT): $(ldrh_strh_2_OBJECTS) $(ldrh_strh_2_DEPENDENCIES) $(EXTRA_ldrh_strh_2_DEPENDENCIES) 
+	@rm -f ldrh_strh_2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldrh_strh_2_OBJECTS) $(ldrh_strh_2_LDADD) $(LIBS)
+
+ldrh_strh_classic$(EXEEXT): $(ldrh_strh_classic_OBJECTS) $(ldrh_strh_classic_DEPENDENCIES) $(EXTRA_ldrh_strh_classic_DEPENDENCIES) 
+	@rm -f ldrh_strh_classic$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldrh_strh_classic_OBJECTS) $(ldrh_strh_classic_LDADD) $(LIBS)
+
+ldrh_strh_ex$(EXEEXT): $(ldrh_strh_ex_OBJECTS) $(ldrh_strh_ex_DEPENDENCIES) $(EXTRA_ldrh_strh_ex_DEPENDENCIES) 
+	@rm -f ldrh_strh_ex$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(ldrh_strh_ex_OBJECTS) $(ldrh_strh_ex_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)

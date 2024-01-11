@@ -396,6 +396,119 @@ int main(void){
 
 
 
+#define INTERRUPT -2
+#define UNDEFINED_INSTRUCTION -1
+#define BX_BLX 1
+#define LDR_STR 2
+#define LDRH_STRH 3
+#define LDM_STM 4
+#define B_BL 5
+#define miscellaneous 6
+#define DATA_PROCESSING 7
+
+
+
+int type_instructions(uint32_t value){
+    uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
+    uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
+    uint8_t bit_4 = get_bit(value, 4);
+    uint8_t bit_20 = get_bit(value , 20);
+    uint8_t bit_7 = get_bit(value , 7);
+    //reccuperer les bits de 25 a 27 de value pour avoir la categorie de l'instruction
+    uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
+    if(ConditionPassed(p , value)){ // si les conditons sont verifier 
+        switch(cat_inst){
+            case 0:
+                if (get_bits(value,27,20)==18){
+                    return BX_BLX;  //BX AND BLX
+                }
+                if(get_bits(value,7,4)==0b1011){
+                    return LDRH_STRH ;       // load store HALF
+                }
+                if(bit_24_23 == 2 && bit_20 == 0){
+                    // Miscellaneous instructions:
+                    return miscellaneous ;  // pour mrs
+                } else if(bit_4 == 1 && bit_7 == 1){
+                    return UNDEFINED_INSTRUCTION ;// undefine on va pas traiter les extra load store et les multiplies
+                } else if (bit_4 == 1 || bit_4 == 0 ){
+                    return arm_data_processing_shift(p, value);
+                }else{
+                    return UNDEFINED_INSTRUCTION ;
+                }
+            case 1:
+                if ((bit_24_23 == 2)&& (bit_21_20 == 0)){
+                    // Undifined instruction
+                    return UNDEFINED_INSTRUCTION ;
+                }else{
+                    //move immediate to status register  (mettre à jour le registre d'état avec une valeur immédiate)
+                    //data prcessing immediate (effectuer des opérations arithmétiques ou logiques sur des données immédiates)
+                    return DATA_PROCESSING;
+                }
+            case 2: // Load/store immediate offset
+                return LDR_STR;
+
+            case 3: // Load/store register offset
+                if(bit_4 == 0){
+                    return LDR_STR;
+                }else{
+                    if(get_bits(value,24,20) == 0b11111){
+                        // architecturally undefined
+                        return UNDEFINED_INSTRUCTION;
+                    }
+                    else{
+                        // media instruction 
+                        return -1 ;
+                    }   
+                }
+            case 4: // load store multiple
+                return LDM_STM;
+
+            case 5: // branche with link
+
+                return B_BL;
+
+            case 6: // Coprocessor load/store and double register transfers
+                return -1;
+            
+            case 7: 
+                if(get_bit(value , 24) == 0){
+                    //coprocessor data processing
+                    //coprocessor register transfers
+                    return -1;
+                }else{
+                    // software interrupt
+                    return INTERRUPT ;
+                }
+        }
+    }else{ // les conditions ne sont pas verifier
+        return INTERRUPT ;
+    }
+}
+
+
+int main(int argc , char *argv[]){
+    printf("type d'instruction est %d \n " ,type_instructions ((int)argv[1]));
+    return 0 ;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -916,9 +1029,72 @@ int main(void){
                                                                                                                    
 
 */
-gdb-multiarch -ex "file Examples/example1" -ex "target remote localhost:37363" -ex "set endian big" -ex "load" -ex "b main" 
+gdb-multiarch -ex "file Examples/example1" -ex "target remote localhost:44000" -ex "set endian big" -ex "load" 
 
 
+
+
+#!/bin/bash
+
+if [ $# -ne 1 ]
+then
+	echo "[Fichier a tester] ERREUR. 
+        nom de fichier .s a executer !"
+else
+	#filename=$(basename $1)
+	filename=$1
+
+	# Recupere le numero de la derniere ligne : swi 0x123456
+	lastLine=$(grep -n 'swi 0x123456' $filename'.s' | awk -F ":" '{print $1}')	
+	if [ -f "arm_simulator" ] #verifier si l'executable est present
+	then
+		> log.out
+		./arm_simulator --gdb-port 44000 &
+		gdb-multiarch -ex "set pagination off" \
+		-ex "file $filename" \
+		-ex "target remote localhost:44000" \
+        -ex "set endian big" \
+		-ex "load" \
+		-ex "b $lastLine" \ 
+		-ex "c" \
+		-ex "set logging file log.out" \
+		-ex "set logging on" \
+		-ex "info reg" \
+		-ex "set logging off" \
+		-ex "continue" \
+		-ex "quit" &> /dev/null
+
+		> log_gdb.out
+		gdb-multiarch -ex "set pagination off" \
+		-ex "file $filename" \
+		-ex "target sim" \
+		-ex "load" \
+		-ex "b 1" \
+		-ex "run" \
+		-ex "advance $lastLine" \
+		-ex "set logging file log_gdb.out" \
+		-ex "set logging on" \
+		-ex "info reg" \
+		-ex "set logging off" \
+		-ex "continue" \
+		-ex "quit" &> /dev/null
+
+		
+		echo "---------------------{GDB}----------------------"
+		echo "$(<log_gdb.out)"
+		echo "------------------------------------------------"
+		echo "---------------------{RESULTAT}----------------------"
+		echo "$(<log.out)"
+		echo "------------------------------------------------"
+		echo "--------------------{DIFF}--------------------"
+		echo "$(diff log.out log_gdb.out)"
+		echo "------------------------------------------------"
+
+	else
+		echo "[Erreur] l'executable du simulateur n'est pas present dans le dossier courant."
+	fi
+fi
+*/
 
 
 uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
@@ -956,4 +1132,150 @@ uint32_t registers_read(registers r, uint8_t reg, uint8_t mode) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "util.h"
+#include "arm_instruction.h"
+#include <stdlib.h>
+#include <stdio.h>
+
+
+
+#define INTERRUPTION -2
+#define UNDEFINED_INSTRUCTIONS -1
+#define BX_BLX 1
+#define LDR_STR 2
+#define LDRH_STRH 3
+#define LDM_STM 4
+#define B_BL 5
+#define miscellaneous 6
+#define DATA_PROCESSING 7
+
+
+int type_instructions(uint32_t value){
+    uint8_t bit_21_20 = get_bits(value , 21 , 20) ;
+    uint8_t bit_24_23 = get_bits(value , 24 , 23) ;
+    uint8_t bit_4 = get_bit(value, 4);
+    uint8_t bit_20 = get_bit(value , 20);
+    uint8_t bit_7 = get_bit(value , 7);
+    //reccuperer les bits de 25 a 27 de value pour avoir la categorie de l'instruction
+    uint8_t cat_inst = get_bits(value , 27 , 25) ;  // categorie d'instruction
+    if(1){ // si les conditons sont verifier 
+        switch(cat_inst){
+            case 0:
+                if (get_bits(value,27,20)==18){
+                    return BX_BLX;  //BX AND BLX
+                }
+                if(get_bits(value,7,4)==0b1011){
+                    return LDRH_STRH ;       // load store HALF
+                }
+                if(bit_24_23 == 2 && bit_20 == 0){
+                    // Miscellaneous instructions:
+                    return miscellaneous ;  // pour mrs
+                } else if(bit_4 == 1 && bit_7 == 1){
+                    return UNDEFINED_INSTRUCTIONS ;// undefine on va pas traiter les extra load store et les multiplies
+                } else if (bit_4 == 1 || bit_4 == 0 ){
+                    return DATA_PROCESSING;
+                }else{
+                    return UNDEFINED_INSTRUCTIONS ;
+                }
+            case 1:
+                if ((bit_24_23 == 2)&& (bit_21_20 == 0)){
+                    // Undifined instruction
+                    return UNDEFINED_INSTRUCTIONS ;
+                }else{
+                    //move immediate to status register  (mettre à jour le registre d'état avec une valeur immédiate)
+                    //data prcessing immediate (effectuer des opérations arithmétiques ou logiques sur des données immédiates)
+                    return DATA_PROCESSING;
+                }
+            case 2: // Load/store immediate offset
+                return LDR_STR;
+
+            case 3: // Load/store register offset
+                if(bit_4 == 0){
+                    return LDR_STR;
+                }else{
+                    if(get_bits(value,24,20) == 0b11111){
+                        // architecturally undefined
+                        return UNDEFINED_INSTRUCTIONS;
+                    }
+                    else{
+                        // media instruction 
+                        return -1 ;
+                    }   
+                }
+            case 4: // load store multiple
+                return LDM_STM;
+
+            case 5: // branche with link
+
+                return B_BL;
+
+            case 6: // Coprocessor load/store and double register transfers
+                return -1;
+            
+            case 7: 
+                if(get_bit(value , 24) == 0){
+                    //coprocessor data processing
+                    //coprocessor register transfers
+                    return -1;
+                }else{
+                    // software interrupt
+                    return INTERRUPTION ;
+                }
+        }
+    }else{ // les conditions ne sont pas verifier
+        return INTERRUPTION ;
+    }
+    return -1 ;
+}
+
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Veuillez fournir un nombre hexadécimal en argument.\n");
+        return 1;
+    }
+
+    // Convertir le nombre hexadécimal en décimal
+    char *endptr;
+    uint32_t decimalValue = strtol(argv[1], &endptr, 16);
+
+    if (*endptr != '\0') {
+        printf("Erreur de conversion du nombre hexadécimal.\n");
+        return 1;
+    }
+
+    printf("Valeur décimale : %u\n", decimalValue);
+    
+    // Afficher la valeur binaire
+    printf("Valeur binaire   : ");
+    for (int i = sizeof(decimalValue) * 8 - 1; i >= 0; --i) {
+        printf("%d", (decimalValue >> i) & 1);
+    }
+    printf("\n");
+
+    // Utiliser la valeur décimale dans type_instructions
+    printf("Type d'instruction : %d\n", type_instructions(decimalValue));
+
+    return 0;
+}
 

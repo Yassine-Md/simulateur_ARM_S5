@@ -25,6 +25,7 @@ Contact: Guillaume.Huard@imag.fr
 #include <stdint.h>
 #include "arm_core.h"
 
+// tous ses fonctions return 0 sinon erreur 
 int handle_register_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store, uint32_t write_back);
 int handle_immediate_common_ldrh_strh(arm_core p, uint32_t ins, uint32_t Rd, uint32_t Rn, uint32_t U, uint32_t load_store , uint32_t write_back) ;
 int handle_immediate_offset_ldrh_strh(arm_core p , uint32_t ins , uint32_t Rd , uint32_t Rn , uint32_t U , uint32_t load_store);
@@ -44,8 +45,19 @@ int handle_immediate_pre_indexed(arm_core p, uint32_t ins);
 int handle_register_pre_indexed(arm_core p, uint32_t ins);
 int handle_scaled_register_pre_indexed(arm_core p, uint32_t ins);
 int handle_ldr_str(arm_core p, uint32_t ins);
-int determine_instruction_type(uint32_t ins);
 int arm_load_store(arm_core p, uint32_t ins);
+//--------------------------------------------------------------------------------------------------------------------
+
+/*
+retourne une constante representant le type de l'instruction memoire. 
+Les types possibles sont definis comme constantes :
+	(LDR_STR_INSTRUCTION, LDRH_STRH_INSTRUCTION, et UNDEFINED_INSTRUCTION).
+*/
+int determine_instruction_type(uint32_t ins);
+
+
+
+
 int arm_load_store_multiple(arm_core p, uint32_t ins);
 int arm_coprocessor_load_store(arm_core p, uint32_t ins);
 

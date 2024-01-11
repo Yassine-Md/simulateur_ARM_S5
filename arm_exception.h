@@ -27,11 +27,38 @@ Contact: Guillaume.Huard@imag.fr
 
 int arm_exception(arm_core p, unsigned char exception);
 
+// Configure le registre CPSR pour la gestion des exceptions, sauvegarde l'état actuel dans le registre SPSR .
 void set_exception_cpsr(arm_core p, uint8_t mode , uint8_t bit6 ) ;
+
+
+/*
+Gere une exception d'abord de données en sauvegardant l'adresse de l'instruction avortee, 
+configurant le CPSR, puis activant le gestionnaire a l'adresse 0x0000000C
+*/
 void data_abort(arm_core p) ;
+
+/*
+Gere une exception d'interruption en sauvegardant l'adresse de la prochaine instruction, 
+configurant le CPSR, puis activant le gestionnaire a l'adresse 0x00000018
+*/
 void unterrupt(arm_core p) ;
+
+/*
+Gere une exception d'instruction indéfinie en sauvegardant l'adresse de l'instruction suivante, 
+configurant le CPSR, puis activant le gestionnaire a l'adresse 0x00000004
+*/
 void undefined_unstruction(arm_core p) ;
+
+/*
+Gere une exception d'abord de lecture en sauvegardant l'adresse de l'instruction avortee, 
+configurant le CPSR, puis activant le gestionnaire a l'adresse 0x0000000C
+*/
 void fetch_abort(arm_core p) ;
+
+/*
+Gere une exception de demande d'interruption rapide en sauvegardant l'adresse de la prochaine instruction, 
+configurant le CPSR, puis activant le gestionnaire a l'adresse 0x0000001C
+*/
 void fast_interrupt_request(arm_core p) ;
 
 #endif
