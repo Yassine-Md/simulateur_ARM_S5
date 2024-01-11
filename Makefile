@@ -90,7 +90,8 @@ build_triplet = x86_64-pc-linux-gnu
 host_triplet = x86_64-pc-linux-gnu
 bin_PROGRAMS = arm_simulator$(EXEEXT) send_irq$(EXEEXT) \
 	memory_test$(EXEEXT) registers_test$(EXEEXT) \
-	arm_data_processing_test$(EXEEXT)
+	arm_data_processing_test$(EXEEXT) \
+	arm_branch_other_test$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -116,6 +117,11 @@ am__objects_1 = csapp.$(OBJEXT) scanner.$(OBJEXT) debug.$(OBJEXT) \
 	arm_load_store.$(OBJEXT) arm_branch_other.$(OBJEXT) \
 	load_store_addressing_operations.$(OBJEXT) \
 	load_store_memory_operations.$(OBJEXT)
+am_arm_branch_other_test_OBJECTS = arm_branch_other_test.$(OBJEXT) \
+	$(am__objects_1)
+arm_branch_other_test_OBJECTS = $(am_arm_branch_other_test_OBJECTS)
+arm_branch_other_test_LDADD = $(LDADD)
+arm_branch_other_test_DEPENDENCIES =
 am_arm_data_processing_test_OBJECTS =  \
 	arm_data_processing_test.$(OBJEXT) $(am__objects_1)
 arm_data_processing_test_OBJECTS =  \
@@ -157,8 +163,10 @@ DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/arm.Po \
-	./$(DEPDIR)/arm_branch_other.Po ./$(DEPDIR)/arm_constants.Po \
-	./$(DEPDIR)/arm_core.Po ./$(DEPDIR)/arm_data_processing.Po \
+	./$(DEPDIR)/arm_branch_other.Po \
+	./$(DEPDIR)/arm_branch_other_test.Po \
+	./$(DEPDIR)/arm_constants.Po ./$(DEPDIR)/arm_core.Po \
+	./$(DEPDIR)/arm_data_processing.Po \
 	./$(DEPDIR)/arm_data_processing_functions.Po \
 	./$(DEPDIR)/arm_data_processing_test.Po \
 	./$(DEPDIR)/arm_exception.Po ./$(DEPDIR)/arm_instruction.Po \
@@ -190,12 +198,14 @@ am__v_LEX_ = $(am__v_LEX_$(AM_DEFAULT_VERBOSITY))
 am__v_LEX_0 = @echo "  LEX     " $@;
 am__v_LEX_1 = 
 YLWRAP = $(top_srcdir)/build-aux/ylwrap
-SOURCES = $(arm_data_processing_test_SOURCES) $(arm_simulator_SOURCES) \
+SOURCES = $(arm_branch_other_test_SOURCES) \
+	$(arm_data_processing_test_SOURCES) $(arm_simulator_SOURCES) \
 	$(memory_test_SOURCES) $(registers_test_SOURCES) \
 	$(send_irq_SOURCES)
-DIST_SOURCES = $(arm_data_processing_test_SOURCES) \
-	$(arm_simulator_SOURCES) $(memory_test_SOURCES) \
-	$(registers_test_SOURCES) $(send_irq_SOURCES)
+DIST_SOURCES = $(arm_branch_other_test_SOURCES) \
+	$(arm_data_processing_test_SOURCES) $(arm_simulator_SOURCES) \
+	$(memory_test_SOURCES) $(registers_test_SOURCES) \
+	$(send_irq_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -291,13 +301,13 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' autoconf
-AUTOHEADER = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' autoheader
-AUTOMAKE = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' automake-1.16
-AWK = mawk
+AUTOCONF = ${SHELL} '/home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/missing' automake-1.16
+AWK = gawk
 CC = gcc
 CCAS = gcc
 CCASDEPMODE = depmode=gcc3
@@ -330,7 +340,7 @@ LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} '/home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/missing' makeinfo
 MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
 PACKAGE = arm_simulator
@@ -345,10 +355,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 VERSION = 1.5
-abs_builddir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
-abs_srcdir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
-abs_top_builddir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
-abs_top_srcdir = /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5
+abs_builddir = /home/e/elouechm/Bureau/simulateur_ARM_S5
+abs_srcdir = /home/e/elouechm/Bureau/simulateur_ARM_S5
+abs_top_builddir = /home/e/elouechm/Bureau/simulateur_ARM_S5
+abs_top_srcdir = /home/e/elouechm/Bureau/simulateur_ARM_S5
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -375,7 +385,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/kali/licence_L3/PROG5/projet_s5/arm_simulator-1.5/build-aux/install-sh
+install_sh = ${SHELL} /home/e/elouechm/Bureau/simulateur_ARM_S5/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -422,6 +432,7 @@ COMMON = csapp.h csapp.c scanner.h scanner.l debug.h debug.c \
        load_store_memory_operations.c  load_store_memory_operations.h
 
 arm_simulator_SOURCES = $(COMMON) arm_simulator.c
+arm_branch_other_test_SOURCES = arm_branch_other_test.c $(COMMON)
 send_irq_SOURCES = send_irq.c csapp.h csapp.c arm_constants.h arm_constants.c
 arm_data_processing_test_SOURCES = arm_data_processing_test.c $(COMMON)
 memory_test_SOURCES = memory_test.c memory.h memory.c util.h util.c
@@ -523,6 +534,10 @@ uninstall-binPROGRAMS:
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
 
+arm_branch_other_test$(EXEEXT): $(arm_branch_other_test_OBJECTS) $(arm_branch_other_test_DEPENDENCIES) $(EXTRA_arm_branch_other_test_DEPENDENCIES) 
+	@rm -f arm_branch_other_test$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(arm_branch_other_test_OBJECTS) $(arm_branch_other_test_LDADD) $(LIBS)
+
 arm_data_processing_test$(EXEEXT): $(arm_data_processing_test_OBJECTS) $(arm_data_processing_test_DEPENDENCIES) $(EXTRA_arm_data_processing_test_DEPENDENCIES) 
 	@rm -f arm_data_processing_test$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(arm_data_processing_test_OBJECTS) $(arm_data_processing_test_LDADD) $(LIBS)
@@ -551,6 +566,7 @@ distclean-compile:
 
 include ./$(DEPDIR)/arm.Po # am--include-marker
 include ./$(DEPDIR)/arm_branch_other.Po # am--include-marker
+include ./$(DEPDIR)/arm_branch_other_test.Po # am--include-marker
 include ./$(DEPDIR)/arm_constants.Po # am--include-marker
 include ./$(DEPDIR)/arm_core.Po # am--include-marker
 include ./$(DEPDIR)/arm_data_processing.Po # am--include-marker
@@ -946,6 +962,7 @@ distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f ./$(DEPDIR)/arm.Po
 	-rm -f ./$(DEPDIR)/arm_branch_other.Po
+	-rm -f ./$(DEPDIR)/arm_branch_other_test.Po
 	-rm -f ./$(DEPDIR)/arm_constants.Po
 	-rm -f ./$(DEPDIR)/arm_core.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing.Po
@@ -1017,6 +1034,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f ./$(DEPDIR)/arm.Po
 	-rm -f ./$(DEPDIR)/arm_branch_other.Po
+	-rm -f ./$(DEPDIR)/arm_branch_other_test.Po
 	-rm -f ./$(DEPDIR)/arm_constants.Po
 	-rm -f ./$(DEPDIR)/arm_core.Po
 	-rm -f ./$(DEPDIR)/arm_data_processing.Po

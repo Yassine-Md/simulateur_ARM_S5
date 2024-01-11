@@ -10,7 +10,7 @@ else
 
 	# Recupere le numero de la derniere ligne : swi 0x123456
 	lastLine=$(grep -n 'swi 0x123456' $filename'.s' | awk -F ":" '{print $1}')	
-	if [ -f "arm_simulator" ] #verifier si l'executable est present
+	if [ -f "arm_simulator" ] #ve rifier si l'executable est present
 	then
 		> log.out
 		echo "before"
